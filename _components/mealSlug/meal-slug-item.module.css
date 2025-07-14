@@ -1,0 +1,81 @@
+.mealInfo p {
+    margin: 0;
+    font-size: 1rem;
+    color: #ddd;
+}
+
+.mealActions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1rem;
+}
+
+.mealActions span {
+    font-weight: bold;
+    color: #ffffff;
+}
+
+.cartBtn {
+    background-color: #ff8c00;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.cartBtn:hover {
+    background-color: #ff9900;
+}
+
+.counter {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.counter button {
+    background: #444;
+    border: none;
+    color: white;
+    padding: 0.3rem 0.6rem;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.counter span {
+    min-width: 20px;
+    text-align: center;
+}
+
+.confirmBox {
+    background: #222;
+    padding: 0.5rem;
+    margin-top: 0.5rem;
+    border: 1px solid #ff8c00;
+    border-radius: 6px;
+}
+
+.confirmBox p {
+    margin-bottom: 0.5rem;
+}
+
+.confirmBox button {
+    margin-right: 0.5rem;
+    padding: 0.3rem 0.6rem;
+    border: none;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+.confirmBox button:first-of-type {
+    background: #ff8c00;
+    color: white;
+}
+
+.confirmBox button:last-of-type {
+    background: #444;
+    color: white;
+}

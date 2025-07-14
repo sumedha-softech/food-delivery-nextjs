@@ -1,0 +1,6 @@
+.backButton {
+    padding: 8px 16px;
+    margin: 10px;
+    border: 1px solid #ccc;
+    cursor: pointer;
+}
