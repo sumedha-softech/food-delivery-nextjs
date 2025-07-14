@@ -1,0 +1,178 @@
+.container {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  color: #f1f1f1;
+}
+
+.header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+  margin-bottom: 2rem;
+  align-items: center;
+  background: #2b2b2b;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.image img {
+  border-radius: 50%;
+  object-fit: cover;
+  border: 4px solid #ff8c00;
+  box-shadow: 0 0 10px #ff8c00aa;
+}
+
+.headerText h1 {
+  margin: 0;
+  font-size: 2.5rem;
+  color: #ffffff;
+}
+
+.creator a {
+  color: #ffae42;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.summary {
+  margin-top: 0.5rem;
+  color: #ccc;
+  line-height: 1.6;
+  max-width: 600px;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.actionBtn {
+  background-color: #ff8c00;
+  color: white;
+  padding: 0.6rem 1.2rem;
+  font-size: 1rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.actionBtn:hover {
+  background-color: #ff9900;
+  transform: translateY(-2px);
+}
+
+.mealList h2 {
+  margin-bottom: 1rem;
+  font-size: 1.8rem;
+  border-bottom: 2px solid #ff8c00;
+  display: inline-block;
+  padding-bottom: 0.3rem;
+}
+
+.grid {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+}
+
+.mealCard {
+  background: #2d2d2d;
+  border-radius: 12px;
+  padding: 1rem;
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.mealCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 18px rgba(255, 140, 0, 0.3);
+}
+
+.mealInfo p {
+  margin: 0;
+  font-size: 1rem;
+  color: #ddd;
+}
+
+.mealActions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1rem;
+}
+
+.mealActions span {
+  font-weight: bold;
+  color: #ffffff;
+}
+
+.cartBtn {
+  background-color: #ff8c00;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.cartBtn:hover {
+  background-color: #ff9900;
+}
+
+.counter {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.counter button {
+  background: #444;
+  border: none;
+  color: white;
+  padding: 0.3rem 0.6rem;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.counter span {
+  min-width: 20px;
+  text-align: center;
+}
+
+.confirmBox {
+  background: #222;
+  padding: 0.5rem;
+  margin-top: 0.5rem;
+  border: 1px solid #ff8c00;
+  border-radius: 6px;
+}
+
+.confirmBox p {
+  margin-bottom: 0.5rem;
+}
+
+.confirmBox button {
+  margin-right: 0.5rem;
+  padding: 0.3rem 0.6rem;
+  border: none;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.confirmBox button:first-of-type {
+  background: #ff8c00;
+  color: white;
+}
+
+.confirmBox button:last-of-type {
+  background: #444;
+  color: white;
+}
