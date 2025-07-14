@@ -45,36 +45,7 @@ Connect to your SQL Server instance and run the following SQL to create the data
 
 ```sql
 -- Create the database
-CREATE DATABASE FoodDelivery;
-
-GO
-USE FoodDelivery;
-
--- Create Restaurant table
-CREATE TABLE Restaurant (
-    id INT IDENTITY(1,1) PRIMARY KEY,
-    name NVARCHAR(255),
-    email NVARCHAR(255),
-    image NVARCHAR(MAX),
-    description NVARCHAR(MAX),
-    location NVARCHAR(255),
-    lat NVARCHAR(50),
-    lng NVARCHAR(50),
-    rating DECIMAL(3,1),
-    createdDate DATETIME DEFAULT GETDATE()
-);
-
--- Create Recipe (Meal) table
-CREATE TABLE Recipe (
-    id INT IDENTITY(1,1) PRIMARY KEY,
-    title NVARCHAR(255),
-    image NVARCHAR(MAX),
-    summary NVARCHAR(MAX),
-    createdDate DATETIME DEFAULT GETDATE(),
-    restaurant_id INT,
-    price DECIMAL(10,2),
-    FOREIGN KEY (restaurant_id) REFERENCES Restaurant(id)
-);
+CREATE DATABASE next-level-food;
 ```
 
 - The app uses Sequelize for ORM. Models are located in the [`models/`](models/) directory.
