@@ -2,10 +2,10 @@
 
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app). The backend uses **SQL Server** as the database, integrated via [Sequelize](https://sequelize.org/) and [tedious](https://www.npmjs.com/package/tedious).
 
-## Project Overview
+## 📺 Project Demo
 
-    ![NextLevel Food Project](./doc/nextLevel-food.gif)
-    [Watch Preview](https://raw.githubusercontent.com/sumedha-softech/food-delivery-nextjs/main/doc/nextLevel-food.mp4)
+  ![File Uploader Package Project](./doc/nextLevel-food.gif)
+   [Watch Preview](https://raw.githubusercontent.com/sumedha-softech/food-delivery-nextjs/main/doc/nextLevel-food.mp4)
 
 ## Features
 
