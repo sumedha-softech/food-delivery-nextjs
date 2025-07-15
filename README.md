@@ -5,6 +5,7 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 ## 📺 Project Demo
 
   ![File Uploader Package Project](./doc/nextLevel-food.gif)
+  
    [Watch Preview](https://raw.githubusercontent.com/sumedha-softech/food-delivery-nextjs/main/doc/nextLevel-food.mp4)
 
 ## Features
