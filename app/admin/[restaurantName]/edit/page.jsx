@@ -77,7 +77,7 @@ const Share = () => {
                         <div>
                             <label htmlFor="location">Location</label>
                             <LocationAutocomplete onSelect={(location) => setSelectedLocation(location)} defaultValue={formData?.location || ''} lat={formData?.lat || ''} lng={formData?.lng || ''} />
-                            {selectedLocation || (formData?.location && formData?.lat && formData?.lng) && (
+                            {(selectedLocation || (formData?.location && formData?.lat && formData?.lng)) && (
                                 <>
                                     <input type="hidden" name="location" value={selectedLocation?.label ?? formData?.location} />
                                     <input type="hidden" name="lat" value={selectedLocation?.coordinates[1] ?? formData?.lat} />

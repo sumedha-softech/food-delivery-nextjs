@@ -14,6 +14,7 @@ export default function RootLayout({ children }) {
         <CartProvider>
         <MainHeader />
           {children}
+          <div id="modal-root"></div>
         </CartProvider>
       </body>
     </html>

@@ -1,0 +1,27 @@
+.success-page {
+    text-align: center;
+    padding: 2rem;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.success-page h1 {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    color: #4caf50;
+}
+
+.success-page p {
+    font-size: 1.2rem;
+    margin: 0.5rem 0;
+}
+
+.back-home {
+    display: inline-block;
+    margin-top: 2rem;
+    padding: 0.8rem 1.5rem;
+    background-color: #4caf50;
+    color: white;
+    border-radius: 8px;
+    text-decoration: none;
+}

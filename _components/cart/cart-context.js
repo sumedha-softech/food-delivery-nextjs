@@ -3,7 +3,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 
 const CartContext = createContext();
-const TAX_RATE = 0.1;
+const TAX_RATE = 0.05;
 
 export const CartProvider = ({ children }) => {
     const [cart, setCart] = useState({ items: [], restaurantId: null });
@@ -47,7 +47,8 @@ export const CartProvider = ({ children }) => {
 
     const subtotal = cart.items.reduce((sum, item) => sum + item.price * item.quantity, 0);
     const tax = subtotal * TAX_RATE;
-    const total = subtotal + tax;
+    const platformFee = 5;
+    const total = subtotal + tax + platformFee;
 
     return (
         <CartContext.Provider value={{
