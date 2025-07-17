@@ -12,6 +12,8 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 - Modern Next.js 15 app directory structure
 - SQL Server database integration for meals, restaurants, and orders
+- Stripe payment gateway integration for secure online payments
+- Real-time delivery estimates using OpenRouteService API
 - Image upload and management
 - Interactive UI with React 19
 - Location features with Leaflet maps
@@ -31,11 +33,18 @@ yarn install
 Copy `.env.example` to `.env` and fill in your SQL Server connection details:
 
 ```
-DB_USER=your_db_user
-DB_PASSWORD=your_db_password
-DB_SERVER=your_db_server
-DB_DATABASE=your_db_name
+DB_NAME = <Database Name>
+DB_HOST = <Database Host>
+DB_USERNAME = <Database Username>
+DB_PASSWORD = <Database Password>
+STRIPE_SECRET_KEY = <sk_test_xxxxxxxxxxxxxxxx>
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY = <pk_test_xxxxxxxxxxxxxxxx>
+NEXT_PUBLIC_OPENROUTESERVICE_API_KEY = <YOUR_API_KEY_HERE>
 ```
+
+- **STRIPE_SECRET_KEY**: Required for processing payments via Stripe.
+- **NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY**: Public Stripe key for frontend.
+- **NEXT_PUBLIC_OPENROUTESERVICE_API_KEY**: API key to fetch delivery time/distance estimates.
 
 ### 3. Run the development server
 
@@ -65,13 +74,27 @@ CREATE DATABASE next-level-food;
 - [`_components/`](./_components/): React components
 - [`config/database.js`](config/database.js): Sequelize SQL Server connection
 
+## Payment Integration
+
+This app uses **Stripe** for processing payments securely:
+- Customers can pay for their orders online.
+- Payments are processed using the backend Stripe secret key.
+- Payment status is tracked for each order
+For configuration, ensure Stripe API keys are added to **.env**
+
+## Delivery Time Estimation
+
+To provide real-time delivery estimates, the app integrates with [https://openrouteservice.org/](OpenRouteService API):
+- Calculates delivery distances and estimated arrival times based on restaurant and customer locations.
+- Uses the API key specified as NEXT_PUBLIC_OPENROUTESERVICE_API_KEY.
+
 ## Deployment
 
 You can deploy this app to any platform that supports Node.js and SQL Server. For more, see [Next.js deployment docs](https://nextjs.org/docs/app/building-your-application/deploying).
 
 ## License
 
-MIT
+MIT License.
 
 ---
 
