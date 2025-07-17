@@ -8,12 +8,56 @@ const SuccessPage = () => {
     const [deliveryTime, setDeliveryTime] = useState(null);
 
     useEffect(() => {
-        // Simulate dynamic delivery time estimate between 20-45 mins
-        const estimate = Math.floor(Math.random() * (45 - 20 + 1)) + 20;
-        setDeliveryTime(estimate);
-
-        localStorage.removeItem('cart');
+        fetchDeliveryEstimate();
     }, []);
+
+    const fetchDeliveryEstimate = async () => {
+        const restaurantAddress = JSON.parse(localStorage.getItem('cart'));
+        let restaurantLat;
+        let restaurantLng;
+        let deliveryLat;
+        let deliveryLng;
+        if (restaurantAddress) {
+            restaurantLat = restaurantAddress.restaurantLat;
+            restaurantLng = restaurantAddress.restaurantLng;
+        }
+
+        const deliveryAddress = JSON.parse(sessionStorage.getItem('address'));
+        if (deliveryAddress) {
+            deliveryLat = deliveryAddress.lat;
+            deliveryLng = deliveryAddress.lng;
+        }
+
+        if (restaurantLat && restaurantLng && deliveryLat && deliveryLng) {
+            try {
+                const body = {
+                    coordinates: [
+                        [parseFloat(restaurantLng), parseFloat(restaurantLat)],
+                        [parseFloat(deliveryLng), parseFloat(deliveryLat)]
+                    ]
+                };
+
+                const response = await fetch('https://api.openrouteservice.org/v2/directions/driving-car/geojson', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': process.env.NEXT_PUBLIC_OPENROUTESERVICE_API_KEY
+                    },
+                    body: JSON.stringify(body)
+                });
+
+                const data = await response.json();
+
+                const durationInSeconds = data.features[0].properties.summary.duration;
+                const durationInMinutes = Math.ceil(durationInSeconds / 60);
+
+                setDeliveryTime(durationInMinutes);
+            } catch (error) {
+                console.error('Error fetching delivery time:', error);
+            }
+        }
+        // localStorage.removeItem('cart');
+    }
 
     return (
         <main className={classes["success-page"]}>

@@ -11,9 +11,8 @@ import ModalContent from '@/_components/delivery-address/modalContent';
 import AddNewAddressForm from '@/_components/delivery-address/addNewAddressForm';
 
 const Cart = () => {
-    const { cartItems, addItem, removeItem, subtotal, tax, total, clearCart } = useCart();
+    const { cart, addItem, removeItem, subtotal, tax, total, clearCart } = useCart();
     const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY);
-
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedAddress, setSelectedAddress] = useState(null);
     const [isAddAddressModalOpen, setIsAddAddressModalOpen] = useState(false);
@@ -31,7 +30,7 @@ const Cart = () => {
         }
     }, [selectedAddress]);
 
-    if (cartItems.length === 0) return (
+    if (cart?.items?.length === 0) return (
         <>
             <BackButton />
             <main className="not-found">
@@ -48,7 +47,7 @@ const Cart = () => {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                items: cartItems,
+                items: cart?.items,
                 tax: tax,
                 platformFee: 5
             }),
@@ -69,7 +68,7 @@ const Cart = () => {
         <div className={classes["cart-container"]}>
             <BackButton />
             <h2>Cart</h2>
-            {cartItems.map(item => (
+            {cart?.items.map(item => (
                 <div key={item.id} className={classes["cart-item"]}>
                     <Image src={item.image} alt={item.title} className={classes["cart-img"]} width={80} height={80} />
                     <div>

@@ -5,7 +5,7 @@ import classes from './meal-slug-item.module.css'
 import { useEffect, useState } from 'react';
 import { useCart } from '../cart/cart-context';
 
-const MealSlugItem = ({ id, image, title, summary, price, restaurantName, restaurantId }) => {
+const MealSlugItem = ({ id, image, title, summary, price, restaurantName, restaurantId, restaurantLat, restaurantLng }) => {
     const { cartItems, addItem, removeItem, clearCart, restaurant } = useCart();
     const [showConfirm, setShowConfirm] = useState(false);
     const [pendingItem, setPendingItem] = useState(null);
@@ -16,7 +16,7 @@ const MealSlugItem = ({ id, image, title, summary, price, restaurantName, restau
         if (restaurant?.id && restaurant.id !== restaurantId) {
             setShowConfirm(true);
         } else {
-            addItem({ id, image, title, price, restaurantId, restaurantName }, restaurantId);
+            addItem({ id, image, title, price, restaurantId, restaurantName }, restaurantId, restaurantLat, restaurantLng);
         }
     };
 
@@ -30,7 +30,12 @@ const MealSlugItem = ({ id, image, title, summary, price, restaurantName, restau
 
     useEffect(() => {
         if (pendingItem && cartItems.length === 0 && restaurant?.id === null) {
-            addItem(pendingItem, pendingItem.restaurantId);
+            addItem(
+                pendingItem,
+                pendingItem.restaurantId,
+                restaurantLat,
+                restaurantLng
+            );
             setPendingItem(null);
         }
     }, [cartItems, restaurant?.id, pendingItem, addItem]);
