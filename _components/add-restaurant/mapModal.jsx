@@ -34,7 +34,7 @@ const MapModal = ({ onClose, onSave, defaultLat, defaultLng, defaultLabel }) => 
             const coords = { lat: defaultLat, lng: defaultLng };
             setInitialPosition(coords);
             setSelectedCoords(coords);
-            if (defaultLabel) setLocationLabel(defaultLabel);
+            setLocationLabel(defaultLabel || '');
             return;
         }
 
