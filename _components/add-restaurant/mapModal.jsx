@@ -34,30 +34,34 @@ const MapModal = ({ onClose, onSave, defaultLat, defaultLng, defaultLabel }) => 
             const coords = { lat: defaultLat, lng: defaultLng };
             setInitialPosition(coords);
             setSelectedCoords(coords);
-            setLocationLabel(defaultLabel || '');
-            return;
+        } else {
+            if ('geolocation' in navigator) {
+                navigator.geolocation.getCurrentPosition(
+                    (pos) => {
+                        const coords = {
+                            lat: pos.coords.latitude,
+                            lng: pos.coords.longitude,
+                        };
+                        setInitialPosition(coords);
+                        setSelectedCoords(coords);
+                    },
+                    () => {
+                        const fallback = { lat: 28.6139, lng: 77.2090 };
+                        setInitialPosition(fallback);
+                        setSelectedCoords(fallback);
+                    }
+                );
+            } else {
+                const fallback = { lat: 28.6139, lng: 77.2090 };
+                setInitialPosition(fallback);
+                setSelectedCoords(fallback);
+            }
         }
 
-        if ('geolocation' in navigator) {
-            navigator.geolocation.getCurrentPosition(
-                (pos) => {
-                    const coords = {
-                        lat: pos.coords.latitude,
-                        lng: pos.coords.longitude,
-                    };
-                    setInitialPosition(coords);
-                    setSelectedCoords(coords);
-                },
-                () => {
-                    const fallback = { lat: 28.6139, lng: 77.2090 };
-                    setInitialPosition(fallback);
-                    setSelectedCoords(fallback);
-                }
-            );
+        if (defaultLabel) {
+            setLocationLabel(defaultLabel);
         } else {
-            const fallback = { lat: 28.6139, lng: 77.2090 };
-            setInitialPosition(fallback);
-            setSelectedCoords(fallback);
+            setLocationLabel('Address');
         }
     }, [defaultLat, defaultLng, defaultLabel]);
 
