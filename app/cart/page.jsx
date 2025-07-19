@@ -41,7 +41,6 @@ const Cart = () => {
 
     const checkoutHandler = async () => {
         console.log('Proceeding to checkout...');
-        const stripe = await stripePromise;
 
         const response = await fetch('/api/stripe', {
             method: 'POST',
@@ -49,14 +48,17 @@ const Cart = () => {
             body: JSON.stringify({
                 items: cart?.items,
                 tax: tax,
-                platformFee: 5
+                platformFee: 5,
+                deliveryAddress: selectedAddress.address
             }),
         });
 
-        const session = await response.json();
+        const data = await response.json();
+        const sessionId = data.sessionId;
 
+        const stripe = await stripePromise;
         const result = await stripe.redirectToCheckout({
-            sessionId: session.id,
+            sessionId: sessionId,
         });
 
         if (result.error) {
@@ -132,7 +134,6 @@ const Cart = () => {
                     onClose={() => setIsModalOpen(false)}
                 />
             </AddressModal>
-
         </div>
     )
 }

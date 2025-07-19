@@ -8,7 +8,6 @@ import NavLink from "./nav-link";
 import SearchBar from "../search/search-bar";
 
 const Header = () => {
-
     return (
         <>
             <MainHeaderBackground />

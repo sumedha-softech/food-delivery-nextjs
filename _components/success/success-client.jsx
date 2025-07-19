@@ -2,12 +2,32 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import classes from './page.module.css';
+import classes from './success-client.module.css';
 import { useRouter } from 'next/navigation';
 
-const SuccessPage = () => {
+const SuccessClient = ({ orderId }) => {
+    const [orderDetails, setOrderDetails] = useState(null);
     const [remainingTime, setRemainingTime] = useState(null);
     const router = useRouter();
+
+    useEffect(() => {
+        if (!orderId) return;
+        fetch(`/api/order/${orderId}`)
+            .then(res => {
+                if (!res.ok) {
+                    throw new Error('Failed to fetch order details');
+                }
+                return res.json();
+            })
+            .then(data => {
+                setOrderDetails(data);
+                console.log('Order Details:', data);
+            })
+            .catch((error) => {
+                console.error('API Fetch Error:', error);
+                router.push('/');
+            });
+    }, [orderId]);
 
     useEffect(() => {
         const storedEndTime = parseInt(localStorage.getItem('delivery_end_time'));
@@ -16,23 +36,37 @@ const SuccessPage = () => {
         } else {
             fetchDeliveryEstimate();
         }
+
+        return () => clearInterval(window.deliveryCountdownInterval);
     }, []);
 
     const startCountdown = (endTime) => {
-        const interval = setInterval(() => {
+        window.deliveryCountdownInterval = setInterval(() => {
             const now = Date.now();
             const diff = endTime - now;
 
             if (diff > 0) {
                 setRemainingTime(diff);
             } else {
-                clearInterval(interval);
+                clearInterval(window.deliveryCountdownInterval);
                 localStorage.removeItem('delivery_end_time');
-                router.push('/');
+
+                fetch('/api/order', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ orderId })
+                }).then(res => {
+                    if (!res.ok) {
+                        throw new Error('Failed to mark order completed');
+                    }
+                    console.log('Order marked as completed');
+                    router.push('/');
+                }).catch((error) => {
+                    console.error('Order completion API error:', error);
+                    router.push('/');
+                });
             }
         }, 1000);
-
-        return () => clearInterval(interval);
     };
 
     const fetchDeliveryEstimate = async () => {
@@ -99,13 +133,32 @@ const SuccessPage = () => {
         <main className={classes["success-page"]}>
             <h1>🎉 Order Confirmed!</h1>
             <p>Thank you for your order. Your payment was successful.</p>
-            {remainingTime !== null && (
-                <p><strong>Estimated Delivery Time: {formatTime(remainingTime)} minutes</strong></p>
+
+            {orderDetails && (
+                <section className={classes["order-summary"]}>
+                    <h2>Order Summary</h2>
+                    <p><strong>Order ID:</strong> {orderDetails.id}</p>
+                    <p><strong>Total Amount:</strong> ${orderDetails.totalAmount}</p>
+                    <p><strong>Delivery Address:</strong> {orderDetails.deliveryAddress}</p>
+                    <h3>Items:</h3>
+                    <ul>
+                        {JSON.parse(orderDetails.items)?.map(item => (
+                            <li key={item.id}>{item.title} x {item.quantity}</li>
+                        ))}
+                    </ul>
+                </section>
             )}
+
+            {remainingTime !== null ? (
+                <p><strong>Estimated Delivery Time: {formatTime(remainingTime)}</strong></p>
+            ) : (
+                <p>Calculating your delivery time...</p>
+            )}
+
             <p>We'll notify you when your food is out for delivery.</p>
             <Link href="/" className={classes["back-home"]}>Back to Home</Link>
         </main>
     );
-};
+}
 
-export default SuccessPage;
+export default SuccessClient
