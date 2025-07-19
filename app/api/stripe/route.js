@@ -4,16 +4,12 @@ import { CreateOrder, updateOrderTransactionId } from '../order/route';
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 export async function POST(request) {
-    console.log('0');
     try {
         const { items, tax, platformFee, deliveryAddress } = await request.json();
-        console.log('1');
         const totalTaxAmount = parseFloat(tax || 0);
         const platformFeeAmount = parseFloat(platformFee || 0);
-        console.log('2');
         const totalAmount = items.reduce((acc, item) => acc + item.price * item.quantity, 0)
             + totalTaxAmount + platformFeeAmount;
-        console.log('3');
         const order = await CreateOrder({
             transactionId: '',
             totalAmount,
@@ -21,10 +17,8 @@ export async function POST(request) {
             deliveryAddress,
             status: 'pending'
         });
-        console.log('4');
 
         const orderId = order.orderId;
-        console.log('5');
         const session = await stripe.checkout.sessions.create({
             payment_method_types: ['card'],
             line_items: [
@@ -61,7 +55,6 @@ export async function POST(request) {
             success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/success/${orderId}`,
             cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/cart`,
         });
-        console.log('4');
         await updateOrderTransactionId(orderId, session.id);
 
         return new Response(JSON.stringify({ sessionId: session.id, orderId }), { status: 200 });
