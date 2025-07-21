@@ -31,16 +31,16 @@ const SuccessClient = ({ orderId }) => {
     }, [orderId]);
 
     useEffect(() => {
-        const storedData = JSON.parse(localStorage.getItem('delivery_end_time'));
-        if (storedData?.endTime && storedData?.orderId === orderId) {
-            if (storedData.endTime > Date.now()) {
-                startCountdown(storedData.endTime);
-                return;
-            } else {
-                localStorage.removeItem('delivery_end_time');
-            }
+        const storedData = JSON.parse(localStorage.getItem('delivery_end_time')) || {};
+        const endTime = storedData?.[orderId];
+        if (endTime && Number(endTime) > Date.now()) {
+            startCountdown(Number(endTime));
+        } else if (endTime) {
+            delete storedData[orderId];
+            localStorage.setItem('delivery_end_time', JSON.stringify(storedData));
+        } else {
+            fetchDeliveryEstimate();
         }
-        fetchDeliveryEstimate();
 
         return () => clearInterval(window.deliveryCountdownInterval);
     }, []);
@@ -72,7 +72,9 @@ const SuccessClient = ({ orderId }) => {
                 setRemainingTime(diff);
             } else {
                 clearInterval(window.deliveryCountdownInterval);
-                localStorage.removeItem('delivery_end_time');
+                const storedData = JSON.parse(localStorage.getItem('delivery_end_time')) || {};
+                delete storedData[orderId];
+                localStorage.setItem('delivery_end_time', JSON.stringify(storedData));
             }
         }, 1000);
     };
@@ -118,9 +120,9 @@ const SuccessClient = ({ orderId }) => {
                 const durationInMs = Math.ceil(durationInSeconds) * 1000;
 
                 const endTime = Date.now() + durationInMs;
-                const endTimeString = endTime.toString();
-                const storingdata = { endTime: endTimeString, orderId };
-                localStorage.setItem('delivery_end_time', JSON.stringify(storingdata));
+                const existingData = JSON.parse(localStorage.getItem('delivery_end_time')) || {};
+                existingData[orderId] = endTime.toString();
+                localStorage.setItem('delivery_end_time', JSON.stringify(existingData));
                 localStorage.removeItem('cart');
 
                 startCountdown(endTime);
