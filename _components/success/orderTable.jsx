@@ -8,16 +8,24 @@ const OrderTable = ({ orders }) => {
     const [activeOrders, setActiveOrders] = useState({});
 
     useEffect(() => {
-        const storedData = JSON.parse(localStorage.getItem('delivery_end_time'));
-        if (storedData && storedData.orderId && storedData.endTime) {
+        const updateActiveOrders = () => {
+            const storedData = JSON.parse(localStorage.getItem('delivery_end_time')) || {};
             const currentTime = Date.now();
-            if (currentTime < parseInt(storedData.endTime)) {
-                setActiveOrders(prev => ({
-                    ...prev,
-                    [storedData.orderId]: true
-                }));
-            }
-        }
+            const active = {};
+
+            Object.entries(storedData).forEach(([orderId, endTime]) => {
+                if (currentTime < parseInt(endTime)) {
+                    active[orderId] = true;
+                }
+            });
+
+            setActiveOrders(active);
+        };
+
+        updateActiveOrders();
+        const interval = setInterval(updateActiveOrders, 10000);
+
+        return () => clearInterval(interval);
     }, []);
 
     return (
