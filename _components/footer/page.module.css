@@ -1,0 +1,25 @@
+.footer {
+    background-color: #1f2937;
+    color: #f9fafb;
+    padding: 1rem;
+    font-size: 0.85rem;
+    text-align: center;
+}
+
+.footerContent {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: nowrap;    /* Prevent wrapping */
+    gap: 1.5rem;          /* Space between items */
+}
+
+.footerContent p {
+    margin: 0;
+    white-space: nowrap;  /* Prevent content from breaking to next line */
+}
+
+.footerContent a {
+    color: #3b82f6;
+    text-decoration: underline;
+}

@@ -1,6 +1,7 @@
 import { CartProvider } from '@/_components/cart/cart-context';
 import './globals.css';
 import MainHeader from '@/_components/main-header/main-header'
+import Footer from '@/_components/footer/page';
 
 export const metadata = {
   title: 'NextLevel Food',
@@ -16,6 +17,7 @@ export default function RootLayout({ children }) {
           {children}
           <div id="modal-root"></div>
         </CartProvider>
+        <Footer />
       </body>
     </html>
   );
