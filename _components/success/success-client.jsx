@@ -8,6 +8,7 @@ import { useRouter } from 'next/navigation';
 const SuccessClient = ({ orderId }) => {
     const [orderDetails, setOrderDetails] = useState(null);
     const [remainingTime, setRemainingTime] = useState(null);
+    const [orderMarkedCompleted, setOrderMarkedCompleted] = useState(false);
     const router = useRouter();
 
     useEffect(() => {
@@ -30,15 +31,37 @@ const SuccessClient = ({ orderId }) => {
     }, [orderId]);
 
     useEffect(() => {
-        const storedEndTime = parseInt(localStorage.getItem('delivery_end_time'));
-        if (storedEndTime && storedEndTime > Date.now()) {
-            startCountdown(storedEndTime);
-        } else {
-            fetchDeliveryEstimate();
+        const storedData = JSON.parse(localStorage.getItem('delivery_end_time'));
+        if (storedData?.endTime && storedData?.orderId === orderId) {
+            if (storedData.endTime > Date.now()) {
+                startCountdown(storedData.endTime);
+                return;
+            } else {
+                localStorage.removeItem('delivery_end_time');
+            }
         }
+        fetchDeliveryEstimate();
 
         return () => clearInterval(window.deliveryCountdownInterval);
     }, []);
+
+    useEffect(() => {
+        if (!orderDetails || orderMarkedCompleted) return;
+
+        fetch('/api/order', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ orderId })
+        }).then(res => {
+            if (!res.ok) {
+                throw new Error('Failed to mark order completed');
+            }
+            console.log('Order marked as completed');
+            setOrderMarkedCompleted(true);
+        }).catch((error) => {
+            console.error('Order completion API error:', error);
+        });
+    }, [orderDetails]);
 
     const startCountdown = (endTime) => {
         window.deliveryCountdownInterval = setInterval(() => {
@@ -50,21 +73,6 @@ const SuccessClient = ({ orderId }) => {
             } else {
                 clearInterval(window.deliveryCountdownInterval);
                 localStorage.removeItem('delivery_end_time');
-
-                fetch('/api/order', {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ orderId })
-                }).then(res => {
-                    if (!res.ok) {
-                        throw new Error('Failed to mark order completed');
-                    }
-                    console.log('Order marked as completed');
-                    router.push('/');
-                }).catch((error) => {
-                    console.error('Order completion API error:', error);
-                    router.push('/');
-                });
             }
         }, 1000);
     };
@@ -110,7 +118,9 @@ const SuccessClient = ({ orderId }) => {
                 const durationInMs = Math.ceil(durationInSeconds) * 1000;
 
                 const endTime = Date.now() + durationInMs;
-                localStorage.setItem('delivery_end_time', endTime.toString());
+                const endTimeString = endTime.toString();
+                const storingdata = { endTime: endTimeString, orderId };
+                localStorage.setItem('delivery_end_time', JSON.stringify(storingdata));
                 localStorage.removeItem('cart');
 
                 startCountdown(endTime);

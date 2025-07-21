@@ -65,11 +65,40 @@ export const GetOrderByOrderId = async (orderId) => {
     }
 }
 
+export const GetAllOrders = async () => {
+    try {
+        await sequelize.authenticate();
+
+        const orders = await Order.findAll({
+            where: {
+                status: 'completed'
+            }
+        });
+        return Response.json(orders);
+    } catch (error) {
+        console.error(error);
+        throw new Error('Failed to fetch orders');
+    }
+}
+
 export const PUT = async (req) => {
     try {
         const { orderId } = await req.json();
         if (!orderId) {
             return new Response('Missing orderId', { status: 400 });
+        }
+
+        await sequelize.authenticate();
+
+        const order = await Order.findOne({ where: { orderId } });
+
+        if (!order) {
+            return new Response('Order not found', { status: 404 });
+        }
+
+        if (order.status === 'completed') {
+            console.log(`Order ${orderId} is already completed.`);
+            return new Response('Order already completed', { status: 200 });
         }
 
         await updateOrderTransactionId(orderId, '', 'completed');
