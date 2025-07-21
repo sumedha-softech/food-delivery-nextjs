@@ -2,29 +2,19 @@
 
 import classes from './suggestionList.module.css';
 
-const SuggestionList = ({ suggestions, onSelect, onMapSelect, showFallback, loading }) => {
-    if (suggestions.length === 0 && !showFallback) return null;
-
+const SuggestionList = ({ suggestions, onSelect, loading }) => {
     return (
         <ul className={classes["locations-dropdown"]}>
             {loading
                 ? <li className={classes.loading}>Loading...</li>
-                : suggestions.length > 0 ? (
-                    <>
-                        {suggestions.map((item, idx) => (
-                            <li key={idx} onClick={() => onSelect(item)}>
-                                {item.label}
-                            </li>
-                        ))}
-                        <li onClick={onMapSelect}>
-                            <b>Select using map</b>
+                : suggestions.length > 0
+                    ? suggestions.map((item, idx) => (
+                        <li key={idx} onClick={() => onSelect(item)}>
+                            {item.label}
                         </li>
-                    </>
-                ) : (
-                    <li onClick={onMapSelect}>
-                        <b>Select using map</b>
-                    </li>
-                )}
+                    ))
+                    : <li className={classes.noResults}>No results found</li>
+            }
         </ul>
     )
 }

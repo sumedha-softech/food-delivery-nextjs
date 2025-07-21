@@ -42,15 +42,15 @@ const AddRestaurant = () => {
                         </p>
                     </div>
                     <div>
-                            <label htmlFor="location">Location</label>
-                            <LocationAutocomplete onSelect={(location) => setSelectedLocation(location)} />
-                            {selectedLocation && (
-                                <>
-                                    <input type="hidden" name="location" value={selectedLocation.label} />
-                                    <input type="hidden" name="lat" value={selectedLocation.coordinates[1]} />
-                                    <input type="hidden" name="lng" value={selectedLocation.coordinates[0]} />
-                                </>
-                            )}
+                        <label htmlFor="location">Location</label>
+                        <LocationAutocomplete onSelect={(location) => setSelectedLocation(location)} />
+                        {selectedLocation && (
+                            <>
+                                <input type="hidden" name="location" value={selectedLocation.label} />
+                                <input type="hidden" name="lat" value={selectedLocation.coordinates[1]} />
+                                <input type="hidden" name="lng" value={selectedLocation.coordinates[0]} />
+                            </>
+                        )}
                     </div>
                     <p>
                         <label htmlFor="description">Description</label>

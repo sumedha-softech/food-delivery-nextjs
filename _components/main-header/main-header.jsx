@@ -8,7 +8,6 @@ import NavLink from "./nav-link";
 import SearchBar from "../search/search-bar";
 
 const Header = () => {
-
     return (
         <>
             <MainHeaderBackground />
@@ -21,6 +20,9 @@ const Header = () => {
 
                 <nav className={classes.nav}>
                     <ul>
+                        <li>
+                            <NavLink href="/success">Success</NavLink>
+                        </li>
                         <li>
                             <NavLink href="/meals">Meals</NavLink>
                         </li>

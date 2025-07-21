@@ -3,10 +3,10 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 
 const CartContext = createContext();
-const TAX_RATE = 0.1;
+const TAX_RATE = 0.05;
 
 export const CartProvider = ({ children }) => {
-    const [cart, setCart] = useState({ items: [], restaurantId: null });
+    const [cart, setCart] = useState({ items: [], restaurantId: null, restaurantLat: null, restaurantLng: null });
 
     useEffect(() => {
         const stored = localStorage.getItem('cart');
@@ -17,7 +17,7 @@ export const CartProvider = ({ children }) => {
         localStorage.setItem('cart', JSON.stringify(cart));
     }, [cart]);
 
-    const addItem = (item, restaurantId) => {
+    const addItem = (item, restaurantId, restaurantLat, restaurantLng) => {
         if (cart.restaurantId && cart.restaurantId !== restaurantId) {
             return { conflict: true };
         }
@@ -32,7 +32,12 @@ export const CartProvider = ({ children }) => {
             updatedItems = [...cart.items, { ...item, quantity: 1 }];
         }
 
-        setCart({ items: updatedItems, restaurantId });
+        setCart({
+            items: updatedItems,
+            restaurantId,
+            restaurantLat,
+            restaurantLng
+        });
         return { conflict: false };
     };
 
@@ -43,17 +48,20 @@ export const CartProvider = ({ children }) => {
         setCart({ ...cart, items: updatedItems });
     };
 
-    const clearCart = () => setCart({ items: [], restaurantId: null });
+    const clearCart = () => setCart({ items: [], restaurantId: null, restaurantLat: null, restaurantLng: null });
 
     const subtotal = cart.items.reduce((sum, item) => sum + item.price * item.quantity, 0);
     const tax = subtotal * TAX_RATE;
-    const total = subtotal + tax;
+    const platformFee = 5;
+    const total = subtotal + tax + platformFee;
 
     return (
         <CartContext.Provider value={{
             cart,
             cartItems: cart.items,
-            restaurant: { id: cart.restaurantId },
+            restaurant: {
+                id: cart.restaurantId,
+            },
             subtotal,
             tax,
             total,

@@ -35,7 +35,7 @@ const Slug = async ({ params }) => {
                 <h2>Menu</h2>
                 <Suspense fallback={<MealsLoadingPage />}>
                     {restaurant.recipes?.length > 0 ? (
-                        <MealsSlugGrid meal={restaurant.recipes} restaurantName={restaurant.name} restaurantId={restaurant.id} />
+                        <MealsSlugGrid meal={restaurant.recipes} restaurantName={restaurant.name} restaurantId={restaurant.id} lat={restaurant.lat} lng={restaurant.lng} />
                     ) : (
                         <p>No meals available for this restaurant.</p>
                     )}

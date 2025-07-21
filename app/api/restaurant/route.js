@@ -10,8 +10,6 @@ export const InsertRestaurant = async (restaurantData) => {
     try {
         await sequelize.authenticate();
 
-        // await Restaurant.sync({ alter: true });
-
         const existingRestaurant = await Restaurant.findOne({
             where: {
                 name: restaurantData.name

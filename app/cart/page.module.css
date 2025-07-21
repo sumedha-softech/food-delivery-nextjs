@@ -32,6 +32,11 @@
   padding-top: 1rem;
 }
 
+.cart-buttons {
+  display: flex;
+  gap: 10px;
+}
+
 .clear-cart {
   margin-top: 1rem;
   background-color: #ff4444;
@@ -39,4 +44,9 @@
   border: none;
   padding: 0.5rem 1rem;
   border-radius: 5px;
+}
+
+.checkout {
+  background-color: #f0d1d1;
+  color: #000;
 }

@@ -1,0 +1,78 @@
+/* addNewAddressForm.module.css */
+
+.form-container {
+    background: #fff;
+    padding: 24px;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    margin: 0 auto;
+}
+
+.form-container h3 {
+    font-size: 1.4rem;
+    margin-bottom: 16px;
+    color: #333;
+}
+
+.form-container>div {
+    margin-bottom: 16px;
+}
+
+.form-container label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: #555;
+}
+
+.form-container input[type="text"],
+.form-container select {
+    width: 100%;
+    padding: 10px 12px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    background-color: white;
+    height: 38px;
+    transition: border-color 0.2s ease;
+}
+
+.form-container input[type="text"]:focus,
+.form-container select:focus {
+    border-color: #007bff;
+    outline: none;
+}
+
+.form-container input[type="text"]:disabled {
+    background-color: #f0f0f0;
+    cursor: not-allowed;
+}
+
+.form-container button[type="submit"] {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    font-weight: 500;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.form-container button[type="submit"]:hover {
+    background-color: #0056b3;
+}
+
+@media (max-width: 500px) {
+    .form-container {
+        padding: 16px;
+    }
+
+    .form-container h3 {
+        font-size: 1.2rem;
+    }
+}

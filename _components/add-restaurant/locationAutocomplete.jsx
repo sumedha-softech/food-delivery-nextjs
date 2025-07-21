@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import SuggestionList from "./suggestionList";
 import dynamic from 'next/dynamic';
 import classes from './locationAutocomplete.module.css'
@@ -16,6 +16,24 @@ const LocationAutocomplete = ({ onSelect, defaultValue, lat, lng }) => {
     const [showSuggestions, setShowSuggestions] = useState(false);
     const [loading, setLoading] = useState(false);
 
+    const [selectedCoords, setSelectedCoords] = useState(null);
+    const [locationLabel, setLocationLabel] = useState('');
+
+    const wrapperRef = useRef(null);
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (wrapperRef.current && !wrapperRef.current.contains(event.target)) {
+                setShowSuggestions(false);
+            }
+        };
+
+        document.addEventListener("mousedown", handleClickOutside);
+
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, []);
 
     useEffect(() => {
         if (defaultValue) {
@@ -76,6 +94,13 @@ const LocationAutocomplete = ({ onSelect, defaultValue, lat, lng }) => {
     const handleSelect = (suggestion) => {
         setInputValue(suggestion.label);
         onSelect(suggestion);
+
+        setSelectedCoords({
+            lat: suggestion.coordinates[1],
+            lng: suggestion.coordinates[0],
+        });
+        setLocationLabel(suggestion.label);
+
         setShouldFetch(false);
         setSuggestions([]);
         setShowSuggestions(false);
@@ -87,48 +112,61 @@ const LocationAutocomplete = ({ onSelect, defaultValue, lat, lng }) => {
         setShowSuggestions(true);
     };
 
-    const handleMapConfirm = () => {
-        setShowMap(true);
-    };
-
     const handleMapSave = (location) => {
         setInputValue(location.label);
         onSelect(location);
+
+        setSelectedCoords({
+            lat: location.lat,
+            lng: location.lng,
+        });
+        setLocationLabel(location.label);
+
         setShouldFetch(false);
         setSuggestions([]);
         setShowSuggestions(false);
     };
 
     return (
-        <div className={classes["location-field"]}>
-            <input
-                type="text"
-                value={inputValue}
-                id="location"
-                name="location"
-                placeholder="Search for location..."
-                onChange={handleChange}
-                required
-                autoComplete="off"
-            />
+        <div ref={wrapperRef} className={classes["location-field"]}>
+            <div className={classes.location}>
+                <div className={classes["search-field"]}>
+                    <input
+                        type="text"
+                        value={inputValue}
+                        id="location"
+                        name="location"
+                        placeholder="Search for location..."
+                        onChange={handleChange}
+                        required
+                        autoComplete="off"
+                    />
 
-            {showSuggestions && (
-                <SuggestionList
-                    suggestions={suggestions}
-                    onSelect={handleSelect}
-                    onMapSelect={handleMapConfirm}
-                    showFallback={inputValue.length >= 3 && suggestions.length === 0}
-                    loading={loading}
-                />
-            )}
+                    {/* Suggestions Dropdown */}
+                    {showSuggestions && (
+                        <SuggestionList
+                            suggestions={suggestions}
+                            onSelect={handleSelect}
+                            loading={loading}
+                        />
+                    )}
+                </div>
+                <div className={classes["map"]}>
+                    {/* Separate Map Button */}
+                    <button type="button" className={classes["map-button"]} onClick={() => setShowMap(true)}>
+                        Select location using map
+                    </button>
+                </div>
+            </div>
 
+            {/* Map Modal */}
             {showMap && (
                 <MapModal
                     onClose={() => setShowMap(false)}
                     onSave={handleMapSave}
-                    defaultLat={lat}
-                    defaultLng={lng}
-                    defaultLabel={defaultValue}
+                    defaultLat={selectedCoords?.lat}
+                    defaultLng={selectedCoords?.lng}
+                    defaultLabel={locationLabel}
                 />
             )}
         </div>
