@@ -6,13 +6,13 @@ export const GetMeals = async () => {
         await sequelize.authenticate();
         const [recipes] = await sequelize.query(`
             SELECT r.*, res.name AS restaurant_name
-    FROM recipe r
+    FROM Recipe r
     JOIN (
         SELECT restaurant_id, MIN(id) AS min_id
-        FROM recipe
+        FROM Recipe
         GROUP BY restaurant_id
     ) AS grouped ON r.id = grouped.min_id
-    JOIN restaurant res ON r.restaurant_id = res.id
+    JOIN Restaurant res ON r.restaurant_id = res.id
         `);
 
         return recipes.map(recipe => ({
@@ -75,8 +75,8 @@ export const GetMealsByRestaurantName = async (resturantName) => {
         const [rows] = await sequelize.query(`
             SELECT
                 re.id AS recipeId, re.title AS recipeTitle, re.image AS recipeImage, re.summary AS recipeSummary, re.price AS recipePrice
-            FROM recipe re
-            INNER JOIN restaurant r ON r.id = re.restaurant_id
+            FROM Recipe re
+            INNER JOIN Restaurant r ON r.id = re.restaurant_id
             WHERE LOWER(REPLACE(REPLACE(REPLACE(r.name, ' ', '-'), '''', ''), '&', '')) = ?
             `, { replacements: [resturantName] });
 
@@ -107,7 +107,7 @@ export const GetMealBySlug = async (mealName) => {
         const [rows] = await sequelize.query(`
             SELECT
                 re.id AS recipeId, re.title AS recipeTitle, re.image AS recipeImage, re.summary AS recipeSummary, re.price AS recipePrice, re.restaurant_id, r.name
-            FROM recipe re
+            FROM Recipe re
             INNER JOIN Restaurant r ON r.id = re.restaurant_id
              WHERE re.title = ?
             `, { replacements: [mealName] });

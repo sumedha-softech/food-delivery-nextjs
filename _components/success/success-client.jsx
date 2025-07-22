@@ -22,7 +22,6 @@ const SuccessClient = ({ orderId }) => {
             })
             .then(data => {
                 setOrderDetails(data);
-                console.log('Order Details:', data);
             })
             .catch((error) => {
                 console.error('API Fetch Error:', error);

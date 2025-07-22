@@ -1,11 +1,7 @@
 import { Sequelize } from 'sequelize';
-import tedious from 'tedious';
 import dotenv from 'dotenv';
 
 dotenv.config();
-
-console.log('DB_NAME:', process.env.DB_NAME);
-console.log('DB_HOST:', process.env.DB_HOST);
 
 const sequelize = new Sequelize(
   process.env.DB_NAME,
@@ -13,16 +9,15 @@ const sequelize = new Sequelize(
   process.env.DB_PASSWORD,
   {
     host: process.env.DB_HOST,
-    dialect: 'mssql',
-    dialectModule: tedious,
-    dialectOptions: {
-      options: {
-        encrypt: false,
-        trustServerCertificate: true
-      },
-    },
-    logging: false,
+    dialect: 'mysql',
+    dialectModule: require('mysql2'),
+    logging: false
   }
 );
+
+// Optional: Test connection once at startup
+sequelize.authenticate()
+  .then(() => console.log('Database connected successfully.'))
+  .catch((err) => console.error('Database connection failed:', err));
 
 export default sequelize;

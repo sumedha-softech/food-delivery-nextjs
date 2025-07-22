@@ -16,7 +16,7 @@ const Restaurant = sequelize.define('Restaurant', {
         allowNull: true
     },
     image: {
-        type: DataTypes.TEXT,
+        type: DataTypes.STRING(500),
         allowNull: true
     },
     description: {
@@ -36,7 +36,7 @@ const Restaurant = sequelize.define('Restaurant', {
         allowNull: true
     },
     rating: {
-        type: DataTypes.DECIMAL,
+        type: DataTypes.DECIMAL(18, 0),
         allowNull: true
     },
     createdDate: {

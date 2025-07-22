@@ -8,8 +8,6 @@ export const CreateOrder = async (orderData) => {
 
         const generatedOrderId = `ORD-${uuidv4().split('-')[0].toUpperCase()}`;
 
-        await Order.sync();
-
         const newOrder = await Order.create({
             orderId: generatedOrderId,
             transactionId: orderData.transactionId,
@@ -72,7 +70,8 @@ export const GetAllOrders = async () => {
         const orders = await Order.findAll({
             where: {
                 status: 'completed'
-            }
+            },
+            order: [['createdDate', 'DESC']]
         });
         return Response.json(orders);
     } catch (error) {

@@ -1,6 +1,6 @@
-# NextLevel Food  - Next.js + SQL Server Food Delivery App
+# NextLevel Food  - Next.js + MySQL Food Delivery App
 
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app). The backend uses **SQL Server** as the database, integrated via [Sequelize](https://sequelize.org/) and [tedious](https://www.npmjs.com/package/tedious).
+This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app). The backend uses **MySQL** as the database, integrated via [Sequelize](https://sequelize.org/) and mysql2.
 
 ## 📺 Project Demo
 
@@ -11,7 +11,7 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 ## Features
 
 - Modern Next.js 15 app directory structure
-- SQL Server database integration for meals, restaurants, and orders
+- MySql database integration for meals, restaurants, and orders
 - Stripe payment gateway integration for secure online payments
 - Real-time delivery estimates using OpenRouteService API
 - Image upload and management
@@ -56,11 +56,11 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ## Database Setup
 
-Connect to your SQL Server instance and run the following SQL to create the database and tables:
+Connect to your MySQL instance and run the following SQL to create the database and tables:
 
 ```sql
 -- Create the database
-CREATE DATABASE next-level-food;
+CREATE DATABASE sql12791241;
 ```
 
 - The app uses Sequelize for ORM. Models are located in the [`models/`](models/) directory.
