@@ -4,6 +4,7 @@ import Restaurant from './restaurant.js';
 Recipe.belongsTo(Restaurant, {
   foreignKey: 'restaurant_id',
   as: 'restaurant',
+  onDelete: 'CASCADE',
 });
 
 Restaurant.hasMany(Recipe, {

@@ -10,8 +10,6 @@ export const InsertAddress = async (addressData) => {
     try {
         await sequelize.authenticate();
 
-        await UserAddress.sync();
-
         const newAddress = await UserAddress.create({
             address: addressData.address,
             city: addressData.city,

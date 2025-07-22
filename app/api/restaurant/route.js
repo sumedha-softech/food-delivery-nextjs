@@ -45,8 +45,8 @@ export const GetRestaurantBySlug = async (resturantName) => {
         const [rows] = await sequelize.query(`
             SELECT
                 r.id, r.name, r.email, r.image, r.description, r.location, r.lat, r.lng, r.rating, re.id AS recipeId, re.title AS recipeTitle, re.summary AS recipeSummary, re.image AS recipeImage, re.price AS recipePrice
-            FROM restaurant r
-            LEFT OUTER JOIN recipe re ON re.restaurant_id = r.id
+            FROM Restaurant r
+            LEFT OUTER JOIN Recipe re ON re.restaurant_id = r.id
             WHERE LOWER(REPLACE(REPLACE(REPLACE(r.name, ' ', '-'), '''', ''), '&', '')) = ?
             `, { replacements: [resturantName] });
 
@@ -100,8 +100,6 @@ export const GetRestaurantNameAndImage = async () => {
 export const UpdateRestaurant = async (restaurantData) => {
     try {
         await sequelize.authenticate();
-
-        // await Restaurant.sync({ alter: true });
 
         const [affectedCount] = await Restaurant.update(
             {

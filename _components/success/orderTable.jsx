@@ -34,7 +34,7 @@ const OrderTable = ({ orders }) => {
                 <p><strong>Order ID:</strong> {order.orderId}</p>
                 <p><strong>Status:</strong> {order.status}</p>
                 <p><strong>Total Amount:</strong> ₹{order.totalAmount}</p>
-                <p><strong>Delivery Address:</strong> {JSON.parse(order.deliveryAddress)}</p>
+                <p><strong>Delivery Address:</strong> {order.deliveryAddress}</p>
                 <h3>Items:</h3>
                 <ul className={classes.itemsList}>
                     {JSON.parse(order.items).map(item => (
