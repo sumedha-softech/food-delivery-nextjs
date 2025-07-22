@@ -51,7 +51,7 @@ const Restaurant = async ({ params }) => {
                                         <br />
                                         <p>{item.summary}</p>
                                         <div className={classes.mealActions}>
-                                            <span>{item.price?.toFixed(2) || '—'}</span>
+                                            <span>{Number(item.price)?.toFixed(2) || '—'}</span>
                                             <Link href={`/admin/${restaurantName}/edit-meal/${item.title}`}>
                                                 <button className={classes.cartBtn}>Edit</button>
                                             </Link>

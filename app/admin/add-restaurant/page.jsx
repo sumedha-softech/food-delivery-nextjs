@@ -16,7 +16,7 @@ const AddRestaurant = () => {
 
     useEffect(() => {
         if (state.message === "Restaurant saved successfully!") {
-            router.push(`/`);
+            router.push(`/admin/restaurant`);
         }
     }, [state.message, router]);
 
