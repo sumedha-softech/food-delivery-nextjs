@@ -4,6 +4,10 @@
     padding: 1rem;
     font-size: 0.85rem;
     text-align: center;
+    margin-top: 20px;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
 }
 
 .footerContent {
