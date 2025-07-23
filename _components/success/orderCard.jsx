@@ -9,6 +9,7 @@ const OrderCard = ({ order, isActive }) => {
             <p><strong>Status:</strong> {order.status}</p>
             <p><strong>Total Amount:</strong> ₹{order.totalAmount}</p>
             <p><strong>Delivery Address:</strong> {order.deliveryAddress.replaceAll("\"", "")}</p>
+            <p><strong>Restaurant:</strong> {order.items[0].restaurantName}</p>
             <h3>Items:</h3>
             <ul className={classes.itemsList}>
                 {order.items.map(item => (
@@ -18,7 +19,6 @@ const OrderCard = ({ order, isActive }) => {
                             <p>{item.title}</p>
                             <p>Qty: {item.quantity}</p>
                             <p>Price: ₹{item.price}</p>
-                            <p>Restaurant: {item.restaurantName}</p>
                         </div>
                     </li>
                 ))}
