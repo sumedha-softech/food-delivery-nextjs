@@ -1,4 +1,3 @@
-// import Link from 'next/link'
 import classes from './page.module.css'
 import MealsGrid from '@/_components/meals/meals-grid'
 import { GetMeals } from '../api/meal/route'

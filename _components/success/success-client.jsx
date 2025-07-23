@@ -1,139 +1,194 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import classes from './success-client.module.css';
 import { useRouter } from 'next/navigation';
 
+// Constants for storage keys to avoid magic strings
+const DELIVERY_END_TIME_KEY = 'delivery_end_time';
+const CART_KEY = 'cart';
+const ADDRESS_KEY = 'address';
+
 const SuccessClient = ({ orderId }) => {
     const [orderDetails, setOrderDetails] = useState(null);
     const [remainingTime, setRemainingTime] = useState(null);
-    const [orderMarkedCompleted, setOrderMarkedCompleted] = useState(false);
     const router = useRouter();
+    const intervalRef = useRef(null);
+    const orderMarkedCompletedRef = useRef(false);
 
+    // Safely parse order items with useMemo to prevent re-parsing on every render
+    const parsedItems = useMemo(() => {
+        if (!orderDetails?.items) return [];
+        try {
+            // Safely parse JSON
+            return JSON.parse(orderDetails.items);
+        } catch (error) {
+            console.error('Failed to parse order items:', error);
+            return []; // Return empty array on error to prevent render crash
+        }
+    }, [orderDetails])
+
+    // Effect to fetch order details, convert to async/await
     useEffect(() => {
         if (!orderId) return;
-        fetch(`/api/order/${orderId}`)
-            .then(res => {
+
+        const fetchOrderDetails = async () => {
+            try {
+                const res = await fetch(`/api/order/${orderId}`);
                 if (!res.ok) {
                     throw new Error('Failed to fetch order details');
                 }
-                return res.json();
-            })
-            .then(data => {
+                const data = await res.json();
                 setOrderDetails(data);
-            })
-            .catch((error) => {
+            } catch (error) {
                 console.error('API Fetch Error:', error);
                 router.push('/');
-            });
-    }, [orderId]);
+            }
+        };
 
-    useEffect(() => {
-        const storedData = JSON.parse(localStorage.getItem('delivery_end_time')) || {};
-        const endTime = storedData?.[orderId];
-        if (endTime && Number(endTime) > Date.now()) {
-            startCountdown(Number(endTime));
-        } else if (endTime) {
-            delete storedData[orderId];
-            localStorage.setItem('delivery_end_time', JSON.stringify(storedData));
-        } else {
-            fetchDeliveryEstimate();
+        fetchOrderDetails();
+    }, [orderId, router]);
+
+    // Memoize startCountdown to stabilize its identity across renders
+    const startCountdown = useCallback((endTime) => {
+        // Clear any existing interval before starting a new one
+        if (intervalRef.current) {
+            clearInterval(intervalRef.current);
         }
 
-        return () => clearInterval(window.deliveryCountdownInterval);
-    }, []);
-
-    useEffect(() => {
-        if (!orderDetails || orderMarkedCompleted) return;
-
-        fetch('/api/order', {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ orderId })
-        }).then(res => {
-            if (!res.ok) {
-                throw new Error('Failed to mark order completed');
-            }
-            console.log('Order marked as completed');
-            setOrderMarkedCompleted(true);
-        }).catch((error) => {
-            console.error('Order completion API error:', error);
-        });
-    }, [orderDetails]);
-
-    const startCountdown = (endTime) => {
-        window.deliveryCountdownInterval = setInterval(() => {
+        intervalRef.current = setInterval(() => {
             const now = Date.now();
             const diff = endTime - now;
 
             if (diff > 0) {
                 setRemainingTime(diff);
             } else {
-                clearInterval(window.deliveryCountdownInterval);
-                const storedData = JSON.parse(localStorage.getItem('delivery_end_time')) || {};
-                delete storedData[orderId];
-                localStorage.setItem('delivery_end_time', JSON.stringify(storedData));
-
+                clearInterval(intervalRef.current);
+                // Cleanup localStorage on expiration
+                try {
+                    const storedData = JSON.parse(localStorage.getItem(DELIVERY_END_TIME_KEY)) || {};
+                    if (storedData[orderId]) {
+                        delete storedData[orderId];
+                        localStorage.setItem(DELIVERY_END_TIME_KEY, JSON.stringify(storedData));
+                    }
+                } catch (error) {
+                    console.error('Failed to cleanup delivery time from storage:', error);
+                }
                 router.push('/');
             }
         }, 1000);
-    };
+    }, [orderId, router]);
 
-    const fetchDeliveryEstimate = async () => {
-        const restaurantAddress = JSON.parse(localStorage.getItem('cart'));
-        let restaurantLat;
-        let restaurantLng;
-        let deliveryLat;
-        let deliveryLng;
-        if (restaurantAddress?.restaurantLat && restaurantAddress?.restaurantLng) {
-            restaurantLat = restaurantAddress.restaurantLat;
-            restaurantLng = restaurantAddress.restaurantLng;
-        }
+    // Memoize fetchDeliveryEstimate and move the OpenRouteService call to our secure API route
+    const fetchDeliveryEstimate = useCallback(async () => {
+        const getStoredData = (key, storage) => {
+            try {
+                const item = storage.getItem(key);
+                return item ? JSON.parse(item) : null;
+            } catch (e) {
+                console.error(`Failed to parse ${key} from storage`, e);
+                return null;
+            }
+        };
 
-        const deliveryAddress = JSON.parse(sessionStorage.getItem('address'));
-        if (deliveryAddress?.lat && deliveryAddress?.lng) {
-            deliveryLat = deliveryAddress.lat;
-            deliveryLng = deliveryAddress.lng;
+        const cartData = getStoredData(CART_KEY, localStorage);
+        const addressData = getStoredData(ADDRESS_KEY, sessionStorage);
+
+        const restaurantLat = cartData?.restaurantLat;
+        const restaurantLng = cartData?.restaurantLng;
+        const deliveryLat = addressData?.lat;
+        const deliveryLng = addressData?.lng;
+
+        if (isNaN(restaurantLat) || isNaN(restaurantLng) || isNaN(deliveryLat) || isNaN(deliveryLng)) {
+            console.error('Invalid coordinates in cart or address');
+            router.push('/');
+            return;
         }
 
         if (restaurantLat && restaurantLng && deliveryLat && deliveryLng) {
             try {
-                const body = {
-                    coordinates: [
-                        [parseFloat(restaurantLng), parseFloat(restaurantLat)],
-                        [parseFloat(deliveryLng), parseFloat(deliveryLat)]
-                    ]
-                };
-
-                const response = await fetch('https://api.openrouteservice.org/v2/directions/driving-car/geojson', {
+                // Securely call our internal API route instead of the external service
+                const response = await fetch('/api/delivery-estimate', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': process.env.NEXT_PUBLIC_OPENROUTESERVICE_API_KEY
-                    },
-                    body: JSON.stringify(body)
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        start: { lng: restaurantLng, lat: restaurantLat },
+                        end: { lng: deliveryLng, lat: deliveryLat },
+                    }),
                 });
 
-                const data = await response.json();
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('Delivery estimate fetch failed:', errorText);
+                    throw new Error('Failed to fetch delivery estimate from server');
+                }
 
-                const durationInSeconds = data.features[0].properties.summary.duration;
-                const durationInMs = Math.ceil(durationInSeconds) * 1000;
-
+                const { durationInMs } = await response.json();
                 const endTime = Date.now() + durationInMs;
-                const existingData = JSON.parse(localStorage.getItem('delivery_end_time')) || {};
-                existingData[orderId] = endTime.toString();
-                localStorage.setItem('delivery_end_time', JSON.stringify(existingData));
-                localStorage.removeItem('cart');
+
+                const storedData = getStoredData(DELIVERY_END_TIME_KEY, localStorage) || {};
+                storedData[orderId] = endTime.toString();
+                localStorage.setItem(DELIVERY_END_TIME_KEY, JSON.stringify(storedData));
+                localStorage.removeItem(CART_KEY);
 
                 startCountdown(endTime);
             } catch (error) {
                 console.error('Error fetching delivery time:', error);
+                router.push('/');
             }
         } else {
             router.push('/');
         }
-    }
+    }, [orderId, router, startCountdown]);
+
+    // Effect to manage the delivery countdown
+    useEffect(() => {
+        if (!orderId) return;
+
+        try {
+            const storedData = JSON.parse(localStorage.getItem(DELIVERY_END_TIME_KEY) || '{}');
+            const endTime = storedData?.[orderId];
+
+            if (endTime && Number(endTime) > Date.now()) {
+                startCountdown(Number(endTime));
+            } else {
+                fetchDeliveryEstimate()
+            }
+        } catch (error) {
+            console.error('Error handling delivery time from storage:', error);
+            fetchDeliveryEstimate(); // Fallback to fetching new estimate
+        }
+
+        // Cleanup interval on component unmount
+        return () => {
+            if (intervalRef.current) {
+                clearInterval(intervalRef.current);
+            }
+        }
+    }, [orderId, fetchDeliveryEstimate, startCountdown]);
+
+    // Effect to mark the order as completed after details are fetched
+    useEffect(() => {
+        if (!orderDetails || orderMarkedCompletedRef.current) return;
+
+        const markOrderCompleted = async () => {
+            try {
+                const res = await fetch('/api/order', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ orderId })
+                });
+                if (!res.ok) throw new Error('Failed to mark order completed');
+                console.log('Order marked as completed');
+                orderMarkedCompletedRef.current = true
+            } catch (error) {
+                console.error('Order completion API error:', error);
+            }
+        }
+
+        markOrderCompleted();
+    }, [orderDetails, orderId]);
 
     const formatTime = (ms) => {
         const totalSeconds = Math.floor(ms / 1000);
@@ -151,11 +206,11 @@ const SuccessClient = ({ orderId }) => {
                 <section className={classes["order-summary"]}>
                     <h2>Order Summary</h2>
                     <p><strong>Order ID:</strong> {orderDetails.id}</p>
-                    <p><strong>Total Amount:</strong> ${orderDetails.totalAmount}</p>
+                    <p><strong>Total Amount:</strong> {orderDetails.totalAmount}</p>
                     <p><strong>Delivery Address:</strong> {orderDetails.deliveryAddress}</p>
                     <h3>Items:</h3>
                     <ul>
-                        {JSON.parse(orderDetails.items)?.map(item => (
+                        {parsedItems.map(item => (
                             <li key={item.id}>{item.title} x {item.quantity}</li>
                         ))}
                     </ul>

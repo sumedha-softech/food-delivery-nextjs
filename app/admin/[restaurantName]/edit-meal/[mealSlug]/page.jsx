@@ -14,7 +14,7 @@ const AddMeal = () => {
     const { restaurantName } = useParams();
     const { mealSlug } = useParams();
 
-    const [meals, setMeals] = useState(null);
+    const [meal, setMeal] = useState(null);
     const [restaurant, setRestaurant] = useState(null);
     const [loading, setLoading] = useState(true);
 
@@ -27,10 +27,10 @@ const AddMeal = () => {
             }
 
             const data = await res.json();
-            setRestaurant(data.name)
-            setMeals(data.recipes[0]);
+            setRestaurant(data.name);
+            setMeal(data.recipes[0]);
         } catch (error) {
-            console.error(err);
+            console.error('Failed to fetch meal:', error);
         } finally {
             setLoading(false);
         }
@@ -62,12 +62,12 @@ const AddMeal = () => {
                     <p className={classes.loader}>Loading restaurant details...</p>
                 ) : (
                     <form className={classes.form} action={formAction}>
-                        <input type='hidden' name="id" defaultValue={meals?.id || ''} />
-                        <input type='hidden' name="restaurantId" defaultValue={meals?.restaurant_id || ''} />
+                        <input type='hidden' name="id" defaultValue={meal?.id || ''} />
+                        <input type='hidden' name="restaurantId" defaultValue={meal?.restaurant_id || ''} />
                         <div className={classes.row}>
                             <p>
                                 <label htmlFor="name">Meal Name</label>
-                                <input type="text" id="name" name="name" defaultValue={meals?.title || ''} required />
+                                <input type="text" id="name" name="name" defaultValue={meal?.title || ''} required />
                             </p>
                             <p>
                                 <label htmlFor="restaurantName">Restaurant</label>
@@ -76,13 +76,13 @@ const AddMeal = () => {
                         </div>
                         <p>
                             <label htmlFor="description">Description</label>
-                            <textarea name="description" id="description" rows="5" defaultValue={meals?.summary || ''} required></textarea>
+                            <textarea name="description" id="description" rows="5" defaultValue={meal?.summary || ''} required></textarea>
                         </p>
                         <p>
                             <label htmlFor="price">Price</label>
-                            <input type="text" id="price" name="price" step="0.1" defaultValue={meals?.price || ''} required />
+                            <input type="text" id="price" name="price" step="0.1" defaultValue={meal?.price || ''} required />
                         </p>
-                        <ImagePicker label="Meal Image" name="image" existingImage={meals?.image} />
+                        <ImagePicker label="Meal Image" name="image" existingImage={meal?.image} />
 
                         {state.message && <p>{state.message}</p>}
 

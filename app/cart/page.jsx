@@ -31,12 +31,12 @@ const Cart = () => {
     }, [selectedAddress]);
 
     if (cart?.items?.length === 0) return (
-        <>
+        <main className={classes["cart-container"]}>
             <BackButton />
-            <main className="not-found">
+            <div className="not-found">
                 <p>Your cart is empty.</p>
-            </main>
-        </>
+            </div>
+        </main>
     )
 
     const checkoutHandler = async () => {

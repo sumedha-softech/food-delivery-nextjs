@@ -21,7 +21,7 @@ const Header = () => {
                 <nav className={classes.nav}>
                     <ul>
                         <li>
-                            <NavLink href="/success">Success</NavLink>
+                            <NavLink href="/success">Your Orders</NavLink>
                         </li>
                         <li>
                             <NavLink href="/meals">Meals</NavLink>

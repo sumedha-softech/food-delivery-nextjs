@@ -4,19 +4,20 @@
     padding: 1rem;
     font-size: 0.85rem;
     text-align: center;
+    width: 100%;
 }
 
 .footerContent {
     display: flex;
     justify-content: center;
     align-items: center;
-    flex-wrap: nowrap;    /* Prevent wrapping */
-    gap: 1.5rem;          /* Space between items */
+    flex-wrap: nowrap;
+    gap: 1.5rem;
 }
 
 .footerContent p {
     margin: 0;
-    white-space: nowrap;  /* Prevent content from breaking to next line */
+    white-space: nowrap;
 }
 
 .footerContent a {

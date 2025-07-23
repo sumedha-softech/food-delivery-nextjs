@@ -10,7 +10,7 @@ const MealItem = ({ title, image, summary, restaurant }) => {
         <article className={classes.meal}>
             <header>
                 <div className={classes.image}>
-                    <Image src={image} alt={title} fill />
+                    <Image src={image} alt={title} fill sizes="(min-width: 768px) 50vw, 100vw" />
                 </div>
                 <div className={classes.headerText}>
                     <h2>{title}</h2>
