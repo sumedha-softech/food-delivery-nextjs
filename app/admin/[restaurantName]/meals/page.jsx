@@ -3,6 +3,7 @@ import classes from './page.module.css'
 import Image from 'next/image'
 import { GetMealsByRestaurantName } from '@/app/api/meal/route'
 import BackButton from '@/_components/backButton/backButton'
+import { notFound } from 'next/navigation'
 
 const MealsAdmin = async ({ params }) => {
     const restaurantName = params.restaurantName;
@@ -13,12 +14,15 @@ const MealsAdmin = async ({ params }) => {
     let data;
     try {
         data = await GetMealsByRestaurantName(restaurantName);
+        if (!data || !Array.isArray(data.recipes)) {
+            notFound();
+        }
     } catch (error) {
         console.error(error);
         return <p>⚠️ Failed to fetch meals.</p>;
     }
 
-    if (!data || !Array.isArray(data.recipes) || data.recipes.length === 0) {
+    if (data.recipes.length === 0) {
         return <p>No meals found for this restaurant.</p>;
     }
 

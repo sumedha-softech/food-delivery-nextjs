@@ -30,6 +30,7 @@ export default function ImageSlideshow({ images }) {
           className={index === currentImageIndex ? classes.active : ''}
           alt={image.title}
           fill
+          sizes="(min-width: 768px) 50vw, 100vw"
         />
       ))}
     </div>

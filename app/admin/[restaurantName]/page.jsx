@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation';
 import { GetRestaurantBySlug } from '../../api/restaurant/route';
 import Link from 'next/link';
 import BackButton from '@/_components/backButton/backButton';
+import MealCard from '@/_components/mealCard/mealCard';
 
 const Restaurant = async ({ params }) => {
     const { restaurantName } = await params;
@@ -44,20 +45,7 @@ const Restaurant = async ({ params }) => {
                     <ul className={classes.grid}>
                         {restaurant.recipes.map((item) => {
                             return (
-                                <li key={item.id} className={classes.mealCard}>
-                                    <Image src={item.image} alt={item.title} width={120} height={120} />
-                                    <div className={classes.mealInfo}>
-                                        <p>{item.title}</p>
-                                        <br />
-                                        <p>{item.summary}</p>
-                                        <div className={classes.mealActions}>
-                                            <span>{Number(item.price)?.toFixed(2) || '—'}</span>
-                                            <Link href={`/admin/${restaurantName}/edit-meal/${item.title}`}>
-                                                <button className={classes.cartBtn}>Edit</button>
-                                            </Link>
-                                        </div>
-                                    </div>
-                                </li>
+                                <MealCard key={item.id} item={item} restaurantName={restaurantName} />
                             )
                         })}
                     </ul>

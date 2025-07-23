@@ -33,17 +33,19 @@ yarn install
 Copy `.env.example` to `.env` and fill in your SQL Server connection details:
 
 ```
-DB_NAME = <Database Name>
-DB_HOST = <Database Host>
-DB_USERNAME = <Database Username>
-DB_PASSWORD = <Database Password>
+DB_NAME = <DATABASE_NAME>
+DB_HOST = <DATABASE_HOST>
+DB_USERNAME = <DATABASE_USERNAME>
+DB_PASSWORD = <DATABASE_PASSWORD>
 STRIPE_SECRET_KEY = <sk_test_xxxxxxxxxxxxxxxx>
 NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY = <pk_test_xxxxxxxxxxxxxxxx>
+NEXT_PUBLIC_BASE_URL = <YOUR_DEVELOPMENT_BASE_URL>
 NEXT_PUBLIC_OPENROUTESERVICE_API_KEY = <YOUR_API_KEY_HERE>
 ```
 
 - **STRIPE_SECRET_KEY**: Required for processing payments via Stripe.
 - **NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY**: Public Stripe key for frontend.
+- **NEXT_PUBLIC_BASE_URL**: Base URL of your frontend application (e.g., http://localhost:3000), used for redirects from Stripe payment gateway.
 - **NEXT_PUBLIC_OPENROUTESERVICE_API_KEY**: API key to fetch delivery time/distance estimates.
 
 ### 3. Run the development server
