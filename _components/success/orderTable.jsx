@@ -6,7 +6,6 @@ import OrderCard from './orderCard';
 const OrderTable = ({ orders }) => {
     const [activeOrders, setActiveOrders] = useState({});
 
-    // Pre-process orders to avoid parsing and string manipulation on every render
     const processedOrders = useMemo(() => {
         if (!orders) return [];
         return orders.map(order => ({

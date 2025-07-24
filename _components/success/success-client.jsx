@@ -5,7 +5,6 @@ import Link from 'next/link';
 import classes from './success-client.module.css';
 import { useRouter } from 'next/navigation';
 
-// Constants for storage keys to avoid magic strings
 const DELIVERY_END_TIME_KEY = 'delivery_end_time';
 const CART_KEY = 'cart';
 const ADDRESS_KEY = 'address';
@@ -17,19 +16,16 @@ const SuccessClient = ({ orderId }) => {
     const intervalRef = useRef(null);
     const orderMarkedCompletedRef = useRef(false);
 
-    // Safely parse order items with useMemo to prevent re-parsing on every render
     const parsedItems = useMemo(() => {
         if (!orderDetails?.items) return [];
         try {
-            // Safely parse JSON
             return JSON.parse(orderDetails.items);
         } catch (error) {
             console.error('Failed to parse order items:', error);
-            return []; // Return empty array on error to prevent render crash
+            return [];
         }
     }, [orderDetails])
 
-    // Effect to fetch order details, convert to async/await
     useEffect(() => {
         if (!orderId) return;
 
@@ -50,9 +46,7 @@ const SuccessClient = ({ orderId }) => {
         fetchOrderDetails();
     }, [orderId, router]);
 
-    // Memoize startCountdown to stabilize its identity across renders
     const startCountdown = useCallback((endTime) => {
-        // Clear any existing interval before starting a new one
         if (intervalRef.current) {
             clearInterval(intervalRef.current);
         }
@@ -65,7 +59,6 @@ const SuccessClient = ({ orderId }) => {
                 setRemainingTime(diff);
             } else {
                 clearInterval(intervalRef.current);
-                // Cleanup localStorage on expiration
                 try {
                     const storedData = JSON.parse(localStorage.getItem(DELIVERY_END_TIME_KEY)) || {};
                     if (storedData[orderId]) {
@@ -80,7 +73,6 @@ const SuccessClient = ({ orderId }) => {
         }, 1000);
     }, [orderId, router]);
 
-    // Memoize fetchDeliveryEstimate and move the OpenRouteService call to our secure API route
     const fetchDeliveryEstimate = useCallback(async () => {
         const getStoredData = (key, storage) => {
             try {
@@ -108,7 +100,6 @@ const SuccessClient = ({ orderId }) => {
 
         if (restaurantLat && restaurantLng && deliveryLat && deliveryLng) {
             try {
-                // Securely call our internal API route instead of the external service
                 const response = await fetch('/api/delivery-estimate', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -142,7 +133,6 @@ const SuccessClient = ({ orderId }) => {
         }
     }, [orderId, router, startCountdown]);
 
-    // Effect to manage the delivery countdown
     useEffect(() => {
         if (!orderId) return;
 
@@ -157,10 +147,9 @@ const SuccessClient = ({ orderId }) => {
             }
         } catch (error) {
             console.error('Error handling delivery time from storage:', error);
-            fetchDeliveryEstimate(); // Fallback to fetching new estimate
+            fetchDeliveryEstimate();
         }
 
-        // Cleanup interval on component unmount
         return () => {
             if (intervalRef.current) {
                 clearInterval(intervalRef.current);
@@ -168,7 +157,6 @@ const SuccessClient = ({ orderId }) => {
         }
     }, [orderId, fetchDeliveryEstimate, startCountdown]);
 
-    // Effect to mark the order as completed after details are fetched
     useEffect(() => {
         if (!orderDetails || orderMarkedCompletedRef.current) return;
 
