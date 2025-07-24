@@ -13,6 +13,16 @@ body {
   background: radial-gradient(#282c34, #282c34);
 }
 
+.main-wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.main-container {
+  flex: 1;
+}
+
 .not-found,
 .error {
   margin-top: 5rem;

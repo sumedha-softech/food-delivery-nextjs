@@ -13,11 +13,15 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body>
         <CartProvider>
-        <MainHeader />
-          {children}
-          <div id="modal-root"></div>
+          <div className='main-wrapper'>
+            <MainHeader />
+            <div className='main-container'>
+              {children}
+            </div>
+            <div id="modal-root"></div>
+            <Footer />
+          </div>
         </CartProvider>
-        <Footer />
       </body>
     </html>
   );

@@ -132,9 +132,7 @@ const SuccessClient = ({ orderId }) => {
             fetchDeliveryEstimate()
         }
 
-        return () => {
-            clearInterval(intervalRef.current);
-        }
+        return () => clearInterval(intervalRef.current);
     }, [orderId, fetchDeliveryEstimate, startCountdown]);
 
     useEffect(() => {
