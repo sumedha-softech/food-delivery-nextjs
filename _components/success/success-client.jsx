@@ -39,7 +39,7 @@ const SuccessClient = ({ orderId }) => {
                 setOrderDetails(data);
             } catch (error) {
                 console.error('API Fetch Error:', error);
-                router.push('/');
+                // router.push('/');
             }
         };
 
@@ -68,7 +68,7 @@ const SuccessClient = ({ orderId }) => {
                 } catch (error) {
                     console.error('Failed to cleanup delivery time from storage:', error);
                 }
-                router.push('/');
+                // router.push('/');
             }
         }, 1000);
     }, [orderId, router]);
@@ -94,7 +94,7 @@ const SuccessClient = ({ orderId }) => {
 
         if (isNaN(restaurantLat) || isNaN(restaurantLng) || isNaN(deliveryLat) || isNaN(deliveryLng)) {
             console.error('Invalid coordinates in cart or address');
-            router.push('/');
+            // router.push('/');
             return;
         }
 
@@ -126,10 +126,10 @@ const SuccessClient = ({ orderId }) => {
                 startCountdown(endTime);
             } catch (error) {
                 console.error('Error fetching delivery time:', error);
-                router.push('/');
+                // router.push('/');
             }
         } else {
-            router.push('/');
+            // router.push('/');
         }
     }, [orderId, router, startCountdown]);
 

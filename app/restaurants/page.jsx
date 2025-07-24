@@ -1,23 +1,20 @@
-import { GetRestaurantNameAndImage } from '../api/restaurant/route';
-import classes from './page.module.css';
+import { Suspense } from 'react';
+import { notFound } from 'next/navigation';
 import RestaurantGrid from '@/_components/restaurant/restaurant-grid';
 import MealsLoadingPage from './loading-out';
-import { Suspense } from 'react';
 import BackButton from '@/_components/backButton/backButton';
+import { GetRestaurantNameAndImage } from '../api/restaurant/route';
+import classes from './page.module.css';
 
-const RestaurantPage = async () => {
-  try {
-    const res = await GetRestaurantNameAndImage();
-    if (res.ok) {
-      const data = await res.json()
-      return <RestaurantGrid restaurant={data} />
-    }
-  } catch (error) {
-    console.error(error);
-  }
-}
+const Restaurant = async () => {
+  const res = await GetRestaurantNameAndImage();
+  if (!res.ok) notFound();
 
-const Restaurant = () => {
+  const data = await res.json()
+  return <RestaurantGrid restaurant={data} />
+};
+
+const RestaurantPage = () => {
   return (
     <>
       <header className={classes.header}>
@@ -29,11 +26,11 @@ const Restaurant = () => {
       </header>
       <main className={classes.main}>
         <Suspense fallback={<MealsLoadingPage />}>
-          <RestaurantPage />
+          <Restaurant />
         </Suspense>
       </main>
     </>
   );
-}
+};
 
-export default Restaurant
+export default RestaurantPage;

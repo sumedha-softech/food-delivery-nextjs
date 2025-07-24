@@ -4,13 +4,20 @@ import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import classes from './image-slideshow.module.css'
 
-export default function ImageSlideshow({ images }) {
+const ImageSlideshow = ({ images }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
-  useEffect(() => {
-    if (!images?.length) return;
+  if (!images?.length) return;
 
+  const preloadImage = (src) => {
+    const img = new window.Image();
+    img.src = src;
+  };
+
+  useEffect(() => {
     const interval = setInterval(() => {
+      preloadImage(images[(currentImageIndex + 1) % images.length].image);
+
       setCurrentImageIndex((prev) =>
         prev < images.length - 1 ? prev + 1 : 0
       );
@@ -35,4 +42,6 @@ export default function ImageSlideshow({ images }) {
       ))}
     </div>
   );
-}
+};
+
+export default ImageSlideshow;
