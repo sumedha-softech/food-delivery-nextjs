@@ -5,7 +5,7 @@ import OrderCard from './orderCard';
 
 const OrderTable = ({ orders }) => {
     const [activeOrders, setActiveOrders] = useState({});
-
+  
     const processedOrders = useMemo(() => {
         if (!orders) return [];
         return orders.map(order => ({
