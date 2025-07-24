@@ -14,10 +14,12 @@ L.Icon.Default.mergeOptions({
     shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
 });
 
-function LocationMarker({ selectedCoords, setSelectedCoords }) {
+const DEFAULT_COORDS = { lat: 28.6139, lng: 77.2090 }; // Delhi fallback
+
+const LocationMarker = ({ selectedCoords, onSelect }) => {
     useMapEvents({
         click(e) {
-            setSelectedCoords(e.latlng);
+            onSelect(e.latlng);
         },
     });
 
@@ -30,51 +32,36 @@ const MapModal = ({ onClose, onSave, defaultLat, defaultLng, defaultLabel }) => 
     const [initialPosition, setInitialPosition] = useState(null);
 
     useEffect(() => {
-        if (defaultLat && defaultLng) {
-            const coords = { lat: defaultLat, lng: defaultLng };
+        const setCoords = (coords) => {
             setInitialPosition(coords);
             setSelectedCoords(coords);
-        } else {
-            if ('geolocation' in navigator) {
-                navigator.geolocation.getCurrentPosition(
-                    (pos) => {
-                        const coords = {
-                            lat: pos.coords.latitude,
-                            lng: pos.coords.longitude,
-                        };
-                        setInitialPosition(coords);
-                        setSelectedCoords(coords);
-                    },
-                    () => {
-                        const fallback = { lat: 28.6139, lng: 77.2090 };
-                        setInitialPosition(fallback);
-                        setSelectedCoords(fallback);
-                    }
-                );
-            } else {
-                const fallback = { lat: 28.6139, lng: 77.2090 };
-                setInitialPosition(fallback);
-                setSelectedCoords(fallback);
-            }
-        }
+        };
 
-        if (defaultLabel) {
-            setLocationLabel(defaultLabel);
+        if (defaultLat && defaultLng) {
+            setCoords({ lat: defaultLat, lng: defaultLng });
+        } else if ('geolocation' in navigator) {
+            navigator.geolocation.getCurrentPosition(
+                (pos) => setCoords({
+                    lat: pos.coords.latitude,
+                    lng: pos.coords.longitude
+                }),
+                () => setCoords(DEFAULT_COORDS)
+            );
         } else {
-            setLocationLabel('Address');
+            setCoords(DEFAULT_COORDS);
         }
-    }, [defaultLat, defaultLng, defaultLabel]);
+    }, [defaultLat, defaultLng]);
 
     const handleSave = () => {
-        if (selectedCoords && locationLabel.trim()) {
-            onSave({
-                label: locationLabel,
-                coordinates: [selectedCoords.lng, selectedCoords.lat],
-                lat: selectedCoords.lat,
-                lng: selectedCoords.lng
-            });
-            onClose();
-        }
+        if (!selectedCoords || !locationLabel.trim()) return;
+
+        onSave({
+            label: locationLabel,
+            coordinates: [selectedCoords.lng, selectedCoords.lat],
+            lat: selectedCoords.lat,
+            lng: selectedCoords.lng
+        });
+        onClose();
     };
 
     if (!initialPosition) return null;
@@ -89,10 +76,12 @@ const MapModal = ({ onClose, onSave, defaultLat, defaultLng, defaultLabel }) => 
                     style={{ height: '400px', width: '100%' }}
                     className={classes.map}
                 >
+
                     <TileLayer
                         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                         url='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
                     />
+
                     <LocationMarker
                         selectedCoords={selectedCoords}
                         setSelectedCoords={setSelectedCoords}
@@ -109,12 +98,20 @@ const MapModal = ({ onClose, onSave, defaultLat, defaultLng, defaultLabel }) => 
                     onChange={(e) => setLocationLabel(e.target.value)}
                     required
                 />
-                <button onClick={handleSave} className={classes['location-save']}>
+
+                <button
+                    type="submit"
+                    onSubmit={(e) => {
+                        e.preventDefault();
+                        handleSave();
+                    }}
+                    className={classes['location-save']}
+                >
                     Save Location
                 </button>
             </div>
         </div>
     )
-}
+};
 
-export default MapModal
+export default MapModal;

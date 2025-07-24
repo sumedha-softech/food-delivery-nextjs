@@ -1,15 +1,17 @@
-import Image from 'next/image'
-import classes from './page.module.css'
+import { cache, Suspense } from 'react';
+import Image from 'next/image';
 import { notFound } from 'next/navigation';
-import { GetRestaurantBySlug } from '../../api/restaurant/route';
-import { Suspense } from 'react';
+import { GetRestaurantBySlug as getRestaurantBySlugUncached } from '../../api/restaurant/route';
 import MealsLoadingPage from '../loading-out';
 import MealsSlugGrid from '@/_components/mealSlug/meals-slug-grid';
 import BackButton from '@/_components/backButton/backButton';
+import classes from './page.module.css';
 
-const Slug = async ({ params }) => {
+const getRestaurantBySlug = cache(getRestaurantBySlugUncached);
+
+const RestaurantDetailPage = async ({ params }) => {
     const { restaurantSlug } = await params;
-    let restaurant = await GetRestaurantBySlug(restaurantSlug);
+    const restaurant = await getRestaurantBySlug(restaurantSlug);
 
     if (!restaurant) {
         notFound();
@@ -20,7 +22,13 @@ const Slug = async ({ params }) => {
             <BackButton />
             <header className={classes.header}>
                 <div className={classes.image}>
-                    <Image src={restaurant.image} alt={restaurant.name} width={140} height={140} />
+                    <Image
+                        src={restaurant.image}
+                        alt={restaurant.name}
+                        width={140}
+                        height={140}
+                        priority
+                    />
                 </div>
                 <div className={classes.headerText}>
                     <h1>{restaurant.name}</h1>
@@ -35,14 +43,20 @@ const Slug = async ({ params }) => {
                 <h2>Menu</h2>
                 <Suspense fallback={<MealsLoadingPage />}>
                     {restaurant.recipes?.length > 0 ? (
-                        <MealsSlugGrid meal={restaurant.recipes} restaurantName={restaurant.name} restaurantId={restaurant.id} lat={restaurant.lat} lng={restaurant.lng} />
+                        <MealsSlugGrid
+                            meal={restaurant.recipes}
+                            restaurantName={restaurant.name}
+                            restaurantId={restaurant.id}
+                            lat={restaurant.lat}
+                            lng={restaurant.lng}
+                        />
                     ) : (
                         <p>No meals available for this restaurant.</p>
                     )}
                 </Suspense>
             </section>
         </main>
-    )
-}
+    );
+};
 
-export default Slug
+export default RestaurantDetailPage;

@@ -19,9 +19,7 @@ const AddressModal = ({ isOpen, onClose, children }) => {
             window.addEventListener('keydown', handleKeyDown);
         }
 
-        return () => {
-            window.removeEventListener('keydown', handleKeyDown);
-        };
+        return () => window.removeEventListener('keydown', handleKeyDown);
     }, [isOpen, onClose]);
 
     if (!isOpen || !modalRoot.current) return null;

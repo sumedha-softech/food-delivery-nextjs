@@ -17,4 +17,4 @@ const OrderList = async () => {
     )
 }
 
-export default OrderList
+export default OrderList;

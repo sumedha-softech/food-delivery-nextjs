@@ -49,9 +49,7 @@ const SearchInput = ({ initialQuery }) => {
             }
         };
         document.addEventListener("mousedown", handleClickOutside);
-        return () => {
-            document.removeEventListener("mousedown", handleClickOutside);
-        };
+        return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
     return (

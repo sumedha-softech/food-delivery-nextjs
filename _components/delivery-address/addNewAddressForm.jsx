@@ -9,72 +9,63 @@ const COUNTRY = 'India';
 
 const AddNewAddressForm = ({ onSave }) => {
     const [state, formAction] = React.useActionState(addDeliveryAddress, { message: null, address: null });
-    const [selectedLocation, setSelectedLocation] = useState(null);
 
+    const [selectedLocation, setSelectedLocation] = useState(null);
     const [statesList, setStatesList] = useState([]);
     const [citiesList, setCitiesList] = useState([]);
+
     const [selectedState, setSelectedState] = useState('');
     const [selectedCity, setSelectedCity] = useState('');
-    const [manualStateCitySelected, setManualStateCitySelected] = useState(false);
+    const [manualSelection, setManualSelection] = useState(false);
 
-    // Fetch States
     useEffect(() => {
+        const fetchStates = async () => {
+            try {
+                const res = await fetch('https://countriesnow.space/api/v0.1/countries/states', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ country: COUNTRY }),
+                });
+                const data = await res.json();
+                if (data?.data?.states) {
+                    setStatesList(data.data.states.map((s) => s.name));
+                }
+            } catch (error) {
+                console.error('Failed to fetch states:', error);
+            }
+        };
+
         fetchStates();
     }, []);
 
-    const fetchStates = useCallback(async () => {
-        try {
-            const res = await fetch('https://countriesnow.space/api/v0.1/countries/states', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ country: COUNTRY }),
-            });
-            const data = await res.json();
-            if (data?.data?.states) {
-                setStatesList(data.data.states.map(item => item.name));
-            }
-        } catch (error) {
-            console.error('Failed to fetch states:', error);
-        }
-    }, []);
-
-    const fetchCities = useCallback(async (stateName) => {
-        try {
-            const res = await fetch('https://countriesnow.space/api/v0.1/countries/state/cities', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ country: COUNTRY, state: stateName }),
-            });
-            const data = await res.json();
-            if (data?.data) {
-                setCitiesList(data.data);
-                return data.data;
-            }
-            return [];
-        } catch (error) {
-            console.error('Failed to fetch cities:', error);
-            return [];
-        }
-    }, []);
-
     useEffect(() => {
-        if (selectedState) {
-            fetchCities(selectedState);
-            setSelectedCity('');
-        } else {
-            setCitiesList([]);
-            setSelectedCity('');
-        }
-    }, [selectedState, fetchCities]);
+        const fetchCities = async () => {
+            if (!selectedState) {
+                setCitiesList([]);
+                setSelectedCity('');
+                return;
+            }
 
-    useEffect(() => {
-        if (state.message === "Address saved successfully!" && state?.address) {
-            onSave(state.address);
-        }
-    }, [state, onSave]);
+            try {
+                const res = await fetch('https://countriesnow.space/api/v0.1/countries/state/cities', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ country: COUNTRY, state: selectedState }),
+                });
+                const data = await res.json();
+                if (data?.data) {
+                    setCitiesList(data.data);
+                }
+            } catch (error) {
+                console.error('Failed to fetch cities:', error);
+            }
+        };
+
+        fetchCities();
+    }, [selectedState]);
 
     const handlePincodeBlur = async (e) => {
-        if (manualStateCitySelected) return;
+        if (manualSelection) return;
 
         const pincode = e.target.value.trim();
         if (pincode.length < 5) return;
@@ -85,14 +76,22 @@ const AddNewAddressForm = ({ onSave }) => {
             const postOffice = data[0]?.PostOffice?.[0];
 
             if (data[0]?.Status === "Success" && postOffice) {
-                const { State: detectedState, District: detectedCity } = postOffice;
+                const { State, District } = postOffice;
 
-                if (statesList.includes(detectedState)) {
-                    setSelectedState(detectedState);
+                if (statesList.includes(State)) {
+                    setSelectedState(State);
 
-                    const cities = await fetchCities(detectedState);
-                    if (cities.includes(detectedCity)) {
-                        setSelectedCity(detectedCity);
+                    const cityRes = await fetch('https://countriesnow.space/api/v0.1/countries/state/cities', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ country: COUNTRY, state: State }),
+                    });
+                    const cityData = await cityRes.json();
+                    const cities = cityData?.data || [];
+
+                    setCitiesList(cities);
+                    if (cities.includes(District)) {
+                        setSelectedCity(District);
                     }
                 }
             }
@@ -101,11 +100,17 @@ const AddNewAddressForm = ({ onSave }) => {
         }
     };
 
+    useEffect(() => {
+        if (state.message === 'Address saved successfully!' && state.address) {
+            onSave(state.address);
+        }
+    }, [state, onSave]);
+
     return (
         <form className={classes['form-container']} action={formAction}>
             <h3>Add New Address</h3>
             <div>
-                <label>Address</label>
+                <label htmlFor="location">Address</label>
                 <LocationAutocomplete onSelect={(location) => setSelectedLocation(location)} />
                 {selectedLocation && (
                     <>
@@ -116,38 +121,42 @@ const AddNewAddressForm = ({ onSave }) => {
                 )}
             </div>
             <div>
-                <label>Country</label>
-                <input type="text" id='country' name='country' value="India" disabled required />
+                <label htmlFor="country">Country</label>
+                <input type="text" id='country' name='country' value={COUNTRY} disabled required />
             </div>
             <div>
-                <label>Postal Code</label>
+                <label htmlFor="postalCode">Postal Code</label>
                 <input type="text" id='postalCode' name='postalCode' onBlur={handlePincodeBlur} required />
             </div>
             <div>
-                <label>State</label>
+                <label htmlFor="state">State</label>
                 <select id='state' name='state' value={selectedState}
                     onChange={(e) => {
                         setSelectedState(e.target.value);
                         setSelectedCity('');
-                        setManualStateCitySelected(true);
+                        setManualSelection(true);
                     }} required>
                     <option value="">Select State</option>
                     {statesList.map((stateName) => (
-                        <option key={stateName} value={stateName}>{stateName}</option>
+                        <option key={stateName} value={stateName}>
+                            {stateName}
+                        </option>
                     ))}
                 </select>
             </div>
             <div>
-                <label>City</label>
+                <label htmlFor="city">City</label>
                 <select id='city' name='city' value={selectedCity}
                     onChange={(e) => {
                         setSelectedCity(e.target.value);
-                        setManualStateCitySelected(true);
+                        setManualSelection(true);
                     }} required
                     disabled={!citiesList.length}>
                     <option value="">Select City</option>
                     {citiesList.map((cityName) => (
-                        <option key={cityName} value={cityName}>{cityName}</option>
+                        <option key={cityName} value={cityName}>
+                            {cityName}
+                        </option>
                     ))}
                 </select>
             </div>
@@ -161,4 +170,4 @@ const AddNewAddressForm = ({ onSave }) => {
     );
 }
 
-export default AddNewAddressForm
+export default AddNewAddressForm;
