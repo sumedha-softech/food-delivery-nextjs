@@ -38,9 +38,9 @@ const MealSlugItem = memo(function MealSlugItem({
     restaurantId,
     restaurantLat,
     restaurantLng }) {
-        
+
     const { cartItems, addItem, removeItem, clearCart, restaurant } = useCart();
-    const { showConfirm, setShowConfirm } = useState(false);
+    const [showConfirm, setShowConfirm] = useState(false);
     const [pendingItem, setPendingItem] = useState(null);
 
     const currentQuantity = cartItems?.find(item => item.id === id)?.quantity || 0;

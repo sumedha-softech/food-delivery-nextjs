@@ -6,27 +6,28 @@ import classes from './modalContent.module.css';
 const ModalContent = ({ onSelect, onAddNew }) => {
     const [addresses, setAddresses] = useState([]);
     const [loading, setLoading] = useState(true);
-    const fetchedRef = useRef(false);
+    const hasFetched = useRef(false);
 
     useEffect(() => {
-        if (fetchedRef.current) return;
-        fetchedRef.current = true;
+        if (hasFetched.current) return;
+        hasFetched.current = true;
 
-        fetchAddress();
+        const fetchAddresses = async () => {
+            try {
+                const res = await fetch('/api/user');
+                if (!res.ok) throw new Error('Failed to fetch addresses');
+                const data = await res.json();
+                setAddresses(Array.isArray(data) ? data : []);
+            } catch (err) {
+                console.error('Error fetching addresses:', err);
+                setAddresses([]);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchAddresses();
     }, []);
-
-    const fetchAddress = async () => {
-        try {
-            const res = await fetch(`/api/user`);
-            if (!res.ok) throw new Error('Failed to fetch restaurant');
-            const data = await res.json();
-            setAddresses(data || []);
-        } catch (err) {
-            console.error(err);
-        } finally {
-            setLoading(false);
-        }
-    };
 
     return (
         <div>
@@ -37,7 +38,14 @@ const ModalContent = ({ onSelect, onAddNew }) => {
             ) : (
                 addresses.length > 0 ? (
                     addresses.map(addr => (
-                        <div key={addr.id} onClick={() => onSelect(addr)} className={classes.addresses}>
+                        <div
+                            key={addr.id}
+                            onClick={() => onSelect(addr)}
+                            className={classes.addresses}
+                            role="button"
+                            tabIndex={0}
+                            onKeyDown={(e) => e.key === 'Enter' && onSelect(addr)}
+                        >
                             <p>{addr.address}</p>
                         </div>
                     ))

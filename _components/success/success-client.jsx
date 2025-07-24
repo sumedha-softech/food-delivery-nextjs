@@ -9,6 +9,18 @@ const DELIVERY_END_TIME_KEY = 'delivery_end_time';
 const CART_KEY = 'cart';
 const ADDRESS_KEY = 'address';
 
+const parseJSON = (data, fallback = null) => {
+    try {
+        return JSON.parse(data);
+    } catch (error) {
+        return fallback;
+    }
+};
+
+const getStoredData = (key, storage) => {
+    return parseJSON(storage.getItem(key), null);
+};
+
 const SuccessClient = ({ orderId }) => {
     const [orderDetails, setOrderDetails] = useState(null);
     const [remainingTime, setRemainingTime] = useState(null);
@@ -17,14 +29,8 @@ const SuccessClient = ({ orderId }) => {
     const orderMarkedCompletedRef = useRef(false);
 
     const parsedItems = useMemo(() => {
-        if (!orderDetails?.items) return [];
-        try {
-            return JSON.parse(orderDetails.items);
-        } catch (error) {
-            console.error('Failed to parse order items:', error);
-            return [];
-        }
-    }, [orderDetails])
+        return parseJSON(orderDetails?.items, []);
+    }, [orderDetails]);
 
     useEffect(() => {
         if (!orderId) return;
@@ -32,24 +38,29 @@ const SuccessClient = ({ orderId }) => {
         const fetchOrderDetails = async () => {
             try {
                 const res = await fetch(`/api/order/${orderId}`);
-                if (!res.ok) {
-                    throw new Error('Failed to fetch order details');
-                }
+                if (!res.ok) throw new Error('Failed to fetch order details');
+
                 const data = await res.json();
                 setOrderDetails(data);
             } catch (error) {
                 console.error('API Fetch Error:', error);
-                // router.push('/');
+                router.push('/');
             }
         };
 
         fetchOrderDetails();
     }, [orderId, router]);
 
-    const startCountdown = useCallback((endTime) => {
-        if (intervalRef.current) {
-            clearInterval(intervalRef.current);
+    const clearDeliveryEndTime = () => {
+        const storedData = getStoredData(DELIVERY_END_TIME_KEY, localStorage) || {};
+        if (storedData[orderId]) {
+            delete storedData[orderId];
+            localStorage.setItem(DELIVERY_END_TIME_KEY, JSON.stringify(storedData));
         }
+    };
+
+    const startCountdown = useCallback((endTime) => {
+        clearInterval(intervalRef.current);
 
         intervalRef.current = setInterval(() => {
             const now = Date.now();
@@ -59,101 +70,70 @@ const SuccessClient = ({ orderId }) => {
                 setRemainingTime(diff);
             } else {
                 clearInterval(intervalRef.current);
-                try {
-                    const storedData = JSON.parse(localStorage.getItem(DELIVERY_END_TIME_KEY)) || {};
-                    if (storedData[orderId]) {
-                        delete storedData[orderId];
-                        localStorage.setItem(DELIVERY_END_TIME_KEY, JSON.stringify(storedData));
-                    }
-                } catch (error) {
-                    console.error('Failed to cleanup delivery time from storage:', error);
-                }
-                // router.push('/');
+                clearDeliveryEndTime();
+                router.push('/');
             }
         }, 1000);
     }, [orderId, router]);
 
     const fetchDeliveryEstimate = useCallback(async () => {
-        const getStoredData = (key, storage) => {
-            try {
-                const item = storage.getItem(key);
-                return item ? JSON.parse(item) : null;
-            } catch (e) {
-                console.error(`Failed to parse ${key} from storage`, e);
-                return null;
-            }
-        };
-
         const cartData = getStoredData(CART_KEY, localStorage);
         const addressData = getStoredData(ADDRESS_KEY, sessionStorage);
 
-        const restaurantLat = cartData?.restaurantLat;
-        const restaurantLng = cartData?.restaurantLng;
-        const deliveryLat = addressData?.lat;
-        const deliveryLng = addressData?.lng;
+        const { restaurantLat, restaurantLng } = cartData || {};
+        const { lat: deliveryLat, lng: deliveryLng } = addressData || {};
 
-        if (isNaN(restaurantLat) || isNaN(restaurantLng) || isNaN(deliveryLat) || isNaN(deliveryLng)) {
+        if ([restaurantLat, restaurantLng, deliveryLat, deliveryLng].some(coord => isNaN(coord))) {
             console.error('Invalid coordinates in cart or address');
-            // router.push('/');
+            router.push('/');
             return;
         }
 
-        if (restaurantLat && restaurantLng && deliveryLat && deliveryLng) {
-            try {
-                const response = await fetch('/api/delivery-estimate', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        start: { lng: restaurantLng, lat: restaurantLat },
-                        end: { lng: deliveryLng, lat: deliveryLat },
-                    }),
-                });
+        try {
+            const res = await fetch('/api/delivery-estimate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    start: { lng: restaurantLng, lat: restaurantLat },
+                    end: { lng: deliveryLng, lat: deliveryLat },
+                }),
+            });
 
-                if (!response.ok) {
-                    const errorText = await response.text();
-                    console.error('Delivery estimate fetch failed:', errorText);
-                    throw new Error('Failed to fetch delivery estimate from server');
-                }
-
-                const { durationInMs } = await response.json();
-                const endTime = Date.now() + durationInMs;
-
-                const storedData = getStoredData(DELIVERY_END_TIME_KEY, localStorage) || {};
-                storedData[orderId] = endTime.toString();
-                localStorage.setItem(DELIVERY_END_TIME_KEY, JSON.stringify(storedData));
-                localStorage.removeItem(CART_KEY);
-
-                startCountdown(endTime);
-            } catch (error) {
-                console.error('Error fetching delivery time:', error);
-                // router.push('/');
+            if (!res.ok) {
+                const errorText = await res.text();
+                console.error('Delivery estimate fetch failed:', errorText);
+                throw new Error('Failed to fetch delivery estimate from server');
             }
-        } else {
-            // router.push('/');
+
+            const { durationInMs } = await res.json();
+            const endTime = Date.now() + durationInMs;
+
+            const storedData = getStoredData(DELIVERY_END_TIME_KEY, localStorage) || {};
+            storedData[orderId] = endTime.toString();
+            localStorage.setItem(DELIVERY_END_TIME_KEY, JSON.stringify(storedData));
+            localStorage.removeItem(CART_KEY);
+
+            startCountdown(endTime);
+        } catch (error) {
+            console.error('Error fetching delivery time:', error);
+            router.push('/');
         }
     }, [orderId, router, startCountdown]);
 
     useEffect(() => {
         if (!orderId) return;
 
-        try {
-            const storedData = JSON.parse(localStorage.getItem(DELIVERY_END_TIME_KEY) || '{}');
-            const endTime = storedData?.[orderId];
+        const storedData = getStoredData(DELIVERY_END_TIME_KEY, localStorage);
+        const endTime = storedData?.[orderId];
 
-            if (endTime && Number(endTime) > Date.now()) {
-                startCountdown(Number(endTime));
-            } else {
-                fetchDeliveryEstimate()
-            }
-        } catch (error) {
-            console.error('Error handling delivery time from storage:', error);
-            fetchDeliveryEstimate();
+        if (endTime && Number(endTime) > Date.now()) {
+            startCountdown(Number(endTime));
+        } else {
+            fetchDeliveryEstimate()
         }
 
         return () => {
-            if (intervalRef.current) {
-                clearInterval(intervalRef.current);
-            }
+            clearInterval(intervalRef.current);
         }
     }, [orderId, fetchDeliveryEstimate, startCountdown]);
 

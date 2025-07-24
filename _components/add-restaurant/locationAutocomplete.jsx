@@ -1,25 +1,25 @@
 'use client';
 
-import { useEffect, useState, useRef } from "react";
-import SuggestionList from "./suggestionList";
+import { useEffect, useState, useRef, useCallback } from "react";
 import dynamic from 'next/dynamic';
+import SuggestionList from "./suggestionList";
 import classes from './locationAutocomplete.module.css'
 
 const MapModal = dynamic(() => import('./mapModal'), { ssr: false });
 
+const NOMINATIM_API_URL = 'https://nominatim.openstreetmap.org/search';
 
-const LocationAutocomplete = ({ onSelect, defaultValue, lat, lng }) => {
-    const [inputValue, setInputValue] = useState('');
+const LocationAutocomplete = ({ onSelect, defaultValue }) => {
+    const [inputValue, setInputValue] = useState(defaultValue || '');
     const [suggestions, setSuggestions] = useState([]);
-    const [shouldFetch, setShouldFetch] = useState(true);
-    const [showMap, setShowMap] = useState(false);
     const [showSuggestions, setShowSuggestions] = useState(false);
+    const [showMap, setShowMap] = useState(false);
     const [loading, setLoading] = useState(false);
-
     const [selectedCoords, setSelectedCoords] = useState(null);
     const [locationLabel, setLocationLabel] = useState('');
 
     const wrapperRef = useRef(null);
+    const fetchController = useRef(null);
 
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -30,9 +30,7 @@ const LocationAutocomplete = ({ onSelect, defaultValue, lat, lng }) => {
 
         document.addEventListener("mousedown", handleClickOutside);
 
-        return () => {
-            document.removeEventListener("mousedown", handleClickOutside);
-        };
+        return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
     useEffect(() => {
@@ -42,37 +40,33 @@ const LocationAutocomplete = ({ onSelect, defaultValue, lat, lng }) => {
     }, [defaultValue]);
 
     useEffect(() => {
-        const controller = new AbortController();
+        if (inputValue.length < 3) {
+            setSuggestions([]);
+            return;
+        }
 
         const fetchSuggestions = async () => {
-            if (!shouldFetch || inputValue.length < 3) {
-                setSuggestions([]);
-                return;
-            }
-
             setLoading(true);
+            fetchController.current?.abort();
+            fetchController.current = new AbortController();
+
             try {
-                const res = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(inputValue)}&format=json&limit=5`, { signal: controller.signal });
+                const res = await fetch(
+                    `${NOMINATIM_API_URL}?q=${encodeURIComponent(inputValue)}&format=json&limit=5`,
+                    { signal: fetchController.current.signal }
+                );
 
                 const data = await res.json();
 
-                const results = [
-                    ...new Map(
-                        data.map(item => {
-                            const name = item.display_name;
-                            const lat = parseFloat(item.lat);
-                            const long = parseFloat(item.lon);
-                            const key = `${name}-${lat}-${long}`;
-                            return [
-                                key,
-                                {
-                                    label: name,
-                                    coordinates: [long, lat]
-                                }
-                            ];
-                        })
-                    ).values()
-                ];
+                const results = Array.from(
+                    new Map(data.map(item => {
+                        const key = `${item.display_name}-${item.lat}-${item.lon}`;
+                        return [key, {
+                            label: item.display_name,
+                            coordinates: [parseFloat(item.lon), parseFloat(item.lat)]
+                        }];
+                    }))
+                ).map(([_, value]) => value);
 
                 setSuggestions(results);
             } catch (error) {
@@ -84,47 +78,35 @@ const LocationAutocomplete = ({ onSelect, defaultValue, lat, lng }) => {
             }
         };
 
-        const timeOut = setTimeout(fetchSuggestions, 100);
+        const delay = setTimeout(fetchSuggestions, 100);
         return () => {
-            clearTimeout(timeOut);
-            controller.abort();
+            clearTimeout(delay);
+            fetchController.current?.abort();
         }
-    }, [inputValue, shouldFetch]);
+    }, [inputValue]);
 
-    const handleSelect = (suggestion) => {
-        setInputValue(suggestion.label);
-        onSelect(suggestion);
-
-        setSelectedCoords({
-            lat: suggestion.coordinates[1],
-            lng: suggestion.coordinates[0],
-        });
-        setLocationLabel(suggestion.label);
-
-        setShouldFetch(false);
-        setSuggestions([]);
+    const applyLocation = useCallback((label, coordinates) => {
+        setInputValue(label);
+        setLocationLabel(label);
+        setSelectedCoords({ lat: coordinates[1], lng: coordinates[0] });
         setShowSuggestions(false);
-    }
+        onSelect({
+            label,
+            coordinates
+        });
+    }, [onSelect]);
 
     const handleChange = (e) => {
         setInputValue(e.target.value);
-        setShouldFetch(true);
         setShowSuggestions(true);
     };
 
-    const handleMapSave = (location) => {
-        setInputValue(location.label);
-        onSelect(location);
+    const handleSelect = (suggestion) => {
+        applyLocation(suggestion.label, suggestion.coordinates);
+    };
 
-        setSelectedCoords({
-            lat: location.lat,
-            lng: location.lng,
-        });
-        setLocationLabel(location.label);
-
-        setShouldFetch(false);
-        setSuggestions([]);
-        setShowSuggestions(false);
+    const handleMapSave = ({ label, lat, lng }) => {
+        applyLocation(label, [lng, lat]);
     };
 
     return (
@@ -142,7 +124,6 @@ const LocationAutocomplete = ({ onSelect, defaultValue, lat, lng }) => {
                         autoComplete="off"
                     />
 
-                    {/* Suggestions Dropdown */}
                     {showSuggestions && (
                         <SuggestionList
                             suggestions={suggestions}
@@ -152,14 +133,12 @@ const LocationAutocomplete = ({ onSelect, defaultValue, lat, lng }) => {
                     )}
                 </div>
                 <div className={classes["map"]}>
-                    {/* Separate Map Button */}
                     <button type="button" className={classes["map-button"]} onClick={() => setShowMap(true)}>
                         Select location using map
                     </button>
                 </div>
             </div>
 
-            {/* Map Modal */}
             {showMap && (
                 <MapModal
                     onClose={() => setShowMap(false)}
@@ -173,4 +152,4 @@ const LocationAutocomplete = ({ onSelect, defaultValue, lat, lng }) => {
     )
 }
 
-export default LocationAutocomplete
+export default LocationAutocomplete;
