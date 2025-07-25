@@ -18,7 +18,7 @@ const MealsSlugGrid = ({ meal, restaurantName, restaurantId, lat, lng }) => {
                 )
             })}
         </ul>
-    )
-}
+    );
+};
 
 export default MealsSlugGrid;

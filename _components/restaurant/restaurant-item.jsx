@@ -1,16 +1,20 @@
 import Image from 'next/image'
 import Link from 'next/link'
-
 import classes from './restaurant-item.module.css'
-import { Suspense } from 'react'
-import MealsLoadingPage from '@/app/restaurants/loading-out'
+
+const restaurantSlug = restaurant.name
+    .toLowerCase()
+    .replace(/[\s&']/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/[^a-z0-9-]/g, '')
+    .replace(/^-|-$/g, '');
 
 const RestaurantItem = ({ name, image }) => {
     return (
         <article className={classes.meal}>
             <header>
                 <div className={classes.image}>
-                    <Image src={image} alt={name} fill sizes="(min-width: 768px) 50vw, 100vw" />
+                    <Image src={image} alt={name} fill sizes="(min-width: 768px) 50vw, 100vw" style={{ objectFit: 'cover' }} />
                 </div>
                 <div className={classes.headerText}>
                     <h2>{name}</h2>
@@ -18,13 +22,11 @@ const RestaurantItem = ({ name, image }) => {
             </header>
             <div className={classes.content}>
                 <div className={classes.actions}>
-                    <Suspense fallback={<MealsLoadingPage />}>
-                        <Link href={`/restaurants/${name.toLowerCase().replaceAll(" ", "-").replaceAll("'", "").replaceAll("&", "")}`}>View Restaurant</Link>
-                    </Suspense>
+                    <Link href={`/restaurants/${restaurantSlug}`}>View Restaurant</Link>
                 </div>
             </div>
         </article>
-    )
-}
+    );
+};
 
-export default RestaurantItem
+export default RestaurantItem;

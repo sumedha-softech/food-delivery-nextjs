@@ -5,8 +5,15 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 const CartContext = createContext();
 const TAX_RATE = 0.05;
 
+const initialCart = {
+    items: [],
+    restaurantId: null,
+    restaurantLat: null,
+    restaurantLng: null
+}
+
 export const CartProvider = ({ children }) => {
-    const [cart, setCart] = useState({ items: [], restaurantId: null, restaurantLat: null, restaurantLng: null });
+    const [cart, setCart] = useState(initialCart);
 
     useEffect(() => {
         const stored = localStorage.getItem('cart');
@@ -48,7 +55,7 @@ export const CartProvider = ({ children }) => {
         setCart({ ...cart, items: updatedItems });
     };
 
-    const clearCart = () => setCart({ items: [], restaurantId: null, restaurantLat: null, restaurantLng: null });
+    const clearCart = () => setCart(initialCart);
 
     const subtotal = cart.items.reduce((sum, item) => sum + item.price * item.quantity, 0);
     const tax = subtotal * TAX_RATE;
