@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { memo, use, useCallback, useEffect, useState } from 'react';
+import { memo, useCallback, useEffect, useState } from 'react';
 import { useCart } from '../cart/cart-context';
 import classes from './meal-slug-item.module.css';
 
@@ -45,57 +45,56 @@ const MealSlugItem = memo(function MealSlugItem({
 
     const currentQuantity = cartItems?.find(item => item.id === id)?.quantity || 0;
 
+    const createItem = () => ({
+        id,
+        image,
+        title,
+        price,
+        restaurantId,
+        restaurantName,
+    });
+
     const handleAdd = useCallback(() => {
         if (restaurant?.id && restaurant.id !== restaurantId) {
             setShowConfirm(true);
         } else {
-            const itemToAdd = { id, image, title, price, restaurantId, restaurantName };
-            addItem(itemToAdd, restaurantId, restaurantLat, restaurantLng);
+            addItem(createItem(), restaurantId, restaurantLat, restaurantLng);
         }
-    }, [
-        addItem,
-        id,
-        image,
-        price,
-        restaurant?.id,
-        restaurantId,
-        restaurantLat,
-        restaurantLng,
-        restaurantName,
-        title
-    ]);
+    }, [restaurant?.id, restaurantId, addItem, restaurantLat, restaurantLng]);
 
     const handleRemove = useCallback(() => {
         removeItem(id);
     }, [id, removeItem]);
 
     const confirmReplace = useCallback(() => {
-        const itemToPend = { id, image, title, price, restaurantName };
-        setPendingItem(itemToPend);
+        setPendingItem(createItem());
         clearCart();
         setShowConfirm(false);
-    }, [clearCart, id, image, price, restaurantId, restaurantName, title]);
+    }, [clearCart]);
 
     const cancelReplace = useCallback(() => {
         setShowConfirm(false);
     }, []);
 
     useEffect(() => {
-        if (pendingItem && cartItems.length === 0 && restaurant?.id === null) {
+        if (pendingItem && cartItems.length === 0 && !restaurant?.id) {
             addItem(pendingItem, pendingItem.restaurantId, restaurantLat, restaurantLng);
             setPendingItem(null);
         }
-    }, [cartItems, restaurant?.id, pendingItem, addItem, restaurantLat, restaurantLng]);
+    }, [pendingItem, cartItems.length, restaurant?.id, addItem, restaurantLat, restaurantLng]);
 
     return (
         <>
             <Image src={image} alt={title} width={120} height={120} />
+
             <div className={classes.mealInfo}>
                 <p>{title}</p>
                 <br />
                 <p>{summary}</p>
+
                 <div className={classes.mealActions}>
                     <span>{Number(price)?.toFixed(2) || '—'}</span>
+
                     {currentQuantity === 0 ? (
                         <button className={classes.cartBtn} onClick={handleAdd}>
                             Add to Cart
@@ -108,6 +107,7 @@ const MealSlugItem = memo(function MealSlugItem({
                         />
                     )}
                 </div>
+
                 {showConfirm && (
                     <ReplaceCartDialog
                         onConfirm={confirmReplace}
@@ -116,7 +116,7 @@ const MealSlugItem = memo(function MealSlugItem({
                 )}
             </div>
         </>
-    )
+    );
 });
 
 export default MealSlugItem;

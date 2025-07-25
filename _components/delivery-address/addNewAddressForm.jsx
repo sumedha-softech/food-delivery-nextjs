@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import LocationAutocomplete from '../add-restaurant/locationAutocomplete';
 import { addDeliveryAddress } from '@/lib/actions';
 import classes from './addNewAddressForm.module.css';
@@ -8,7 +8,10 @@ import classes from './addNewAddressForm.module.css';
 const COUNTRY = 'India';
 
 const AddNewAddressForm = ({ onSave }) => {
-    const [state, formAction] = React.useActionState(addDeliveryAddress, { message: null, address: null });
+    const [state, formAction] = React.useActionState(addDeliveryAddress, {
+        message: null,
+        address: null
+    });
 
     const [selectedLocation, setSelectedLocation] = useState(null);
     const [statesList, setStatesList] = useState([]);
@@ -39,13 +42,13 @@ const AddNewAddressForm = ({ onSave }) => {
     }, []);
 
     useEffect(() => {
-        const fetchCities = async () => {
-            if (!selectedState) {
-                setCitiesList([]);
-                setSelectedCity('');
-                return;
-            }
+        if (!selectedState) {
+            setCitiesList([]);
+            setSelectedCity('');
+            return;
+        }
 
+        const fetchCities = async () => {
             try {
                 const res = await fetch('https://countriesnow.space/api/v0.1/countries/state/cities', {
                     method: 'POST',
@@ -130,12 +133,17 @@ const AddNewAddressForm = ({ onSave }) => {
             </div>
             <div>
                 <label htmlFor="state">State</label>
-                <select id='state' name='state' value={selectedState}
+                <select
+                    id='state'
+                    name='state'
+                    value={selectedState}
                     onChange={(e) => {
                         setSelectedState(e.target.value);
                         setSelectedCity('');
                         setManualSelection(true);
-                    }} required>
+                    }}
+                    required
+                >
                     <option value="">Select State</option>
                     {statesList.map((stateName) => (
                         <option key={stateName} value={stateName}>
@@ -146,12 +154,17 @@ const AddNewAddressForm = ({ onSave }) => {
             </div>
             <div>
                 <label htmlFor="city">City</label>
-                <select id='city' name='city' value={selectedCity}
+                <select
+                    id='city'
+                    name='city'
+                    value={selectedCity}
                     onChange={(e) => {
                         setSelectedCity(e.target.value);
                         setManualSelection(true);
-                    }} required
-                    disabled={!citiesList.length}>
+                    }}
+                    required
+                    disabled={!citiesList.length}
+                >
                     <option value="">Select City</option>
                     {citiesList.map((cityName) => (
                         <option key={cityName} value={cityName}>
@@ -168,6 +181,6 @@ const AddNewAddressForm = ({ onSave }) => {
             </button>
         </form>
     );
-}
+};
 
 export default AddNewAddressForm;

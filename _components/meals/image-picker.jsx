@@ -1,62 +1,70 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
-import classes from './image-picker.module.css'
+import { useRef, useState } from 'react';
 import Image from 'next/image';
+import classes from './image-picker.module.css'
 
 const ImagePicker = ({ label, name, existingImage }) => {
-    const [pickedImage, setPickedImage] = useState();
-    const imageInput = useRef();
+    const [preview, setPreview] = useState(null);
+    const fileInputRef = useRef(null);
 
-    const handleButtonClick = () => {
-        imageInput.current.click();
-    }
+    const handleFileButtonClick = () => {
+        fileInputRef.current?.click();
+    };
 
-    const handleImageChange = (e) => {
-        e.preventDefault();
-        const file = e.target.files[0];
-
+    const handleFileChange = (e) => {
+        const file = e.target.files?.[0];
         if (!file) {
-            setPickedImage(null);
+            setPreview(null);
             return;
         }
 
-        const fileReader = new FileReader();
+        const reader = new FileReader();
+        reader.onload = () => setPreview(fileReader.result);
+        reader.readAsDataURL(file);
+    };
 
-        fileReader.onload = () => {
-            setPickedImage(fileReader.result);
-        };
-
-        fileReader.readAsDataURL(file);
-    }
-
-    const imageToShow = pickedImage || existingImage;
+    const imageSrc = preview || existingImage;
 
     return (
         <div className={classes.picker}>
             <label htmlFor={name}>{label}</label>
             <div className={classes.controls}>
                 <div className={classes.preview}>
-                    {!imageToShow && <p>No image picked yet.</p>}
-                    {imageToShow && (
+                    {imageSrc ? (
                         <Image
-                            src={imageToShow}
-                            alt="Selected restaurant image"
+                            src={imageSrc}
+                            alt={label || 'Selected image preview'}
                             fill
                             style={{ objectFit: 'cover' }}
                         />
+                    ) : (
+                        <p>No image picked yet.</p>
                     )}
                 </div>
-                <input type="hidden" name="existingImage" value={imageToShow || ''} />
+                <input type="hidden" name="existingImage" value={imageSrc || ''} />
 
-                <input className={classes.input} type="file" name={name} accept="image/png, image/jpeg" id={name} ref={imageInput} onChange={handleImageChange} required={!existingImage} />
+                <input
+                    id={name}
+                    ref={fileInputRef}
+                    type="file"
+                    name={name}
+                    accept="image/png, image/jpeg"
+                    className={classes.input}
+                    onChange={handleFileChange}
+                    required={!existingImage}
+                />
 
-                <button className={classes.button} type="button" onClick={handleButtonClick}>
+                <button
+                    className={classes.button}
+                    type="button"
+                    onClick={handleFileButtonClick}
+                >
                     Pick an Image
                 </button>
             </div>
         </div>
-    )
-}
+    );
+};
 
-export default ImagePicker
+export default ImagePicker;

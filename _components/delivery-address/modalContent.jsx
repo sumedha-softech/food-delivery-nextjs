@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import classes from './modalContent.module.css';
 
 const ModalContent = ({ onSelect, onAddNew }) => {
@@ -29,26 +29,36 @@ const ModalContent = ({ onSelect, onAddNew }) => {
         fetchAddresses();
     }, []);
 
+    const handleSelect = useCallback((addr) => () => onSelect(addr), [onSelect]);
+
+    const renderSkeletons = () =>
+        Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className={classes.skeleton} />
+        ));
+
     return (
         <div>
             <h3>Select Delivery Address</h3>
 
             {loading ? (
-                <p>Loading...</p>
+                renderSkeletons()
             ) : (
                 addresses.length > 0 ? (
-                    addresses.map(addr => (
-                        <div
-                            key={addr.id}
-                            onClick={() => onSelect(addr)}
-                            className={classes.addresses}
-                            role="button"
-                            tabIndex={0}
-                            onKeyDown={(e) => e.key === 'Enter' && onSelect(addr)}
-                        >
-                            <p>{addr.address}</p>
-                        </div>
-                    ))
+                    <div>
+                        {addresses.map(addr => (
+                            <div
+                                key={addr.id}
+                                className={classes.addresses}
+                                role="button"
+                                tabIndex={0}
+                                onClick={handleSelect(addr)}
+                                onKeyDown={(e) => e.key === 'Enter' && onSelect(addr)}
+                                aria-label={`Select address: ${addr.address}`}
+                            >
+                                <p>{addr.address}</p>
+                            </div>
+                        ))}
+                    </div>
                 ) : (
                     <p>No addresses found. Please add a new address.</p>
                 )
@@ -57,7 +67,7 @@ const ModalContent = ({ onSelect, onAddNew }) => {
             <button onClick={onAddNew} style={{ marginTop: 10 }}>
                 + Add New Address
             </button>
-        </div>
+        </div >
     );
 };
 
