@@ -3,12 +3,11 @@ import Link from 'next/link';
 import classes from './restaurant-item.module.css';
 
 const RestaurantItem = ({ name, image }) => {
-    const restaurantSlug = name
+    let restaurantSlug = name
         .toLowerCase()
-        .replace(/[\s&']/g, '-')
-        .replace(/-+/g, '-')
-        .replace(/[^a-z0-9-]/g, '')
-        .replace(/^-|-$/g, '');
+        .replace(/ /g, '-')
+        .replace(/'/g, '')
+        .replace(/&/g, '')
 
     return (
         <article className={classes.meal}>
