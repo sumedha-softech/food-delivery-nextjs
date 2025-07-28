@@ -4,18 +4,21 @@ import Image from 'next/image';
 import classes from './page.module.css';
 import { useCart } from '@/_components/cart/cart-context';
 import BackButton from '@/_components/backButton/backButton';
-import { loadStripe } from '@stripe/stripe-js';
+// import { loadStripe } from '@stripe/stripe-js';
 import { useEffect, useState } from 'react';
 import AddressModal from '@/_components/delivery-address/addressModal';
 import ModalContent from '@/_components/delivery-address/modalContent';
 import AddNewAddressForm from '@/_components/delivery-address/addNewAddressForm';
+import { useRouter } from 'next/navigation';
 
 const Cart = () => {
     const { cart, addItem, removeItem, subtotal, tax, total, clearCart } = useCart();
-    const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY);
+    // const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedAddress, setSelectedAddress] = useState(null);
     const [isAddAddressModalOpen, setIsAddAddressModalOpen] = useState(false);
+
+    const router = useRouter();
 
     useEffect(() => {
         const storedAddress = sessionStorage.getItem('address');
@@ -42,7 +45,7 @@ const Cart = () => {
     const checkoutHandler = async () => {
         console.log('Proceeding to checkout...');
 
-        const response = await fetch('/api/stripe', {
+        const response = await fetch('/api/checkout', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -54,16 +57,23 @@ const Cart = () => {
         });
 
         const data = await response.json();
-        const sessionId = data.sessionId;
+        const orderId = data.orderId;
 
-        const stripe = await stripePromise;
-        const result = await stripe.redirectToCheckout({
-            sessionId: sessionId,
-        });
-
-        if (result.error) {
-            console.error(result.error.message);
+        if (orderId) {
+            router.push(`/success/${orderId}`);
+        } else {
+            console.error("Order creation failed");
         }
+        // const sessionId = data.sessionId;
+
+        // const stripe = await stripePromise;
+        // const result = await stripe.redirectToCheckout({
+        //     sessionId: sessionId,
+        // });
+
+        // if (result.error) {
+        //     console.error(result.error.message);
+        // }
     }
 
     return (

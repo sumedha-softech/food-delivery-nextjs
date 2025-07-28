@@ -9,12 +9,12 @@ const Footer = () => {
             <div className={classes.footerContent}>
                 <p>&copy; {currentYear} FoodExpress. All rights reserved.</p>
 
-                <p>
+                {/* <p>
                     Secure payments powered by{' '}
                     <Link href="https://stripe.com" target="_blank" rel="noopener noreferrer">
                         Stripe
                     </Link>.
-                </p>
+                </p> */}
 
                 <p>Real-time delivery estimates via{' '}
                     <Link href="https://openrouteservice.org/" target="_blank" rel="noopener noreferrer">

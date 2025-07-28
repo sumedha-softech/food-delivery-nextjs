@@ -12,7 +12,7 @@ Welcome to NextLevel Food, a full-stack food delivery application built with the
 
 - **Modern Tech Stack**: Built with Next.js 15 (App Router) and React 19.
 - **Robust Backend**: Uses MySQL as the database, managed with the Sequelize ORM.
-- **Secure Payments**: Integrated with Stripe for secure and seamless online payment processing.
+<!-- - **Secure Payments**: Integrated with Stripe for secure and seamless online payment processing. -->
 - **Real-time Delivery Tracking**: Provides delivery time and distance estimates using the OpenRouteService API.
 - **Interactive Maps**: Displays restaurant and user locations using Leaflet maps.
 - **Image Management**: Includes functionality for uploading and managing images for meals and restaurants.
@@ -67,9 +67,9 @@ OPENROUTESERVICE_API_KEY = <YOUR_API_KEY_HERE>
 ```
 
 - **DB_**: Your MySQL database credentials.
-- **STRIPE_SECRET_KEY**: Your secret key for processing payments with Stripe.
+<!-- - **STRIPE_SECRET_KEY**: Your secret key for processing payments with Stripe.
 - **NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY**: Your public Stripe key for the frontend.
-- **NEXT_PUBLIC_BASE_URL**: The base URL of your application, used for redirects from Stripe.
+- **NEXT_PUBLIC_BASE_URL**: The base URL of your application, used for redirects from Stripe. -->
 - **OPENROUTESERVICE_API_KEY**: Your API key for fetching delivery time/distance estimates.
 
 ### 4. Database Setup
@@ -102,9 +102,9 @@ The project follows a standard Next.js App Router structure:
 
 ## 🔌 Key Integrations
 
-### Payment Integration
+<!-- ### Payment Integration
 
-This app uses **Stripe** for processing payments securely. Payments are handled on the backend using the secret key, and order payment status is tracked in the database.
+This app uses **Stripe** for processing payments securely. Payments are handled on the backend using the secret key, and order payment status is tracked in the database. -->
 
 ### Delivery Time Estimation (OpenRouteService)
 
