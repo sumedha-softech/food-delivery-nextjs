@@ -1,15 +1,15 @@
-import Image from 'next/image'
-import Link from 'next/link'
-import classes from './restaurant-item.module.css'
-
-const restaurantSlug = restaurant.name
-    .toLowerCase()
-    .replace(/[\s&']/g, '-')
-    .replace(/-+/g, '-')
-    .replace(/[^a-z0-9-]/g, '')
-    .replace(/^-|-$/g, '');
+import Image from 'next/image';
+import Link from 'next/link';
+import classes from './restaurant-item.module.css';
 
 const RestaurantItem = ({ name, image }) => {
+    const restaurantSlug = name
+        .toLowerCase()
+        .replace(/[\s&']/g, '-')
+        .replace(/-+/g, '-')
+        .replace(/[^a-z0-9-]/g, '')
+        .replace(/^-|-$/g, '');
+
     return (
         <article className={classes.meal}>
             <header>

@@ -1,8 +1,8 @@
 'use client';
 
-import ImagePicker from '@/_components/meals/image-picker'
-import classes from './page.module.css'
-import { addRestaurant, updateRestaurant } from '@/lib/actions'
+import ImagePicker from '@/_components/meals/image-picker';
+import classes from './page.module.css';
+import { addRestaurant, updateRestaurant } from '@/lib/actions';
 import React, { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import LocationAutocomplete from '@/_components/add-restaurant/locationAutocomplete';
@@ -104,7 +104,7 @@ const Share = () => {
                 )}
             </main>
         </>
-    )
-}
+    );
+};
 
-export default Share
+export default Share;

@@ -20,7 +20,7 @@ const ImagePicker = ({ label, name, existingImage }) => {
         }
 
         const reader = new FileReader();
-        reader.onload = () => setPreview(fileReader.result);
+        reader.onload = () => setPreview(reader.result);
         reader.readAsDataURL(file);
     };
 
