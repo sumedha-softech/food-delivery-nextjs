@@ -90,13 +90,17 @@ const SuccessClient = ({ orderId }) => {
         }
 
         try {
+            const reqBody = JSON.stringify({
+                start: { lng: restaurantLng, lat: restaurantLat },
+                end: { lng: deliveryLng, lat: deliveryLat },
+            });
+
+            console.log(reqBody)
+
             const res = await fetch('/api/delivery-estimate', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    start: { lng: restaurantLng, lat: restaurantLat },
-                    end: { lng: deliveryLng, lat: deliveryLat },
-                }),
+                body: reqBody,
             });
 
             if (!res.ok) {

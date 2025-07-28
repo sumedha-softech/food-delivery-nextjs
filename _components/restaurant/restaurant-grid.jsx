@@ -12,7 +12,7 @@ const RestaurantGrid = ({ restaurant }) => {
                 )
             })}
         </ul>
-    )
-}
+    );
+};
 
-export default RestaurantGrid
+export default RestaurantGrid;

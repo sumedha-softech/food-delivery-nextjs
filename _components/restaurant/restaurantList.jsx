@@ -1,6 +1,6 @@
+import { memo } from 'react'
 import Image from 'next/image';
 import Link from 'next/link';
-import React, { memo } from 'react'
 import classes from './restaurantList.module.css'
 
 const RestaurantList = ({ restaurants }) => {
@@ -36,7 +36,7 @@ const RestaurantList = ({ restaurants }) => {
                 )
             })}
         </div>
-    )
-}
+    );
+};
 
-export default memo(RestaurantList)
+export default memo(RestaurantList);

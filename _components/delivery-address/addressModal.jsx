@@ -1,46 +1,46 @@
 'use client';
 
-import React, { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import classes from './addressModal.module.css';
 
 const AddressModal = ({ isOpen, onClose, children }) => {
-    const modalRoot = useRef(null);
+    const [mounted, setMounted] = useState(false);
+    const modalRootRef = useRef(null);
 
     useEffect(() => {
-        modalRoot.current = document.getElementById('modal-root');
+        modalRootRef.current = document.getElementById('modal-root');
+        setMounted(true);
+    }, []);
+
+    useEffect(() => {
+        if (!isOpen) return;
+
         const handleKeyDown = (e) => {
-            if (e.key === 'Escape') {
-                onClose();
-            }
+            if (e.key === 'Escape') onClose();
         };
 
-        if (isOpen) {
-            window.addEventListener('keydown', handleKeyDown);
-        }
-
+        window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, [isOpen, onClose]);
 
-    if (!isOpen || !modalRoot.current) return null;
-
     const handleBackdropClick = (e) => {
-        if (e.target === e.currentTarget) {
-            onClose();
-        }
+        if (e.target === e.currentTarget) onClose();
     };
+
+    if (!isOpen || !mounted || !modalRootRef.current) return null;
 
     return createPortal(
         <div className={classes['address-modal']} onClick={handleBackdropClick}>
             <div className={classes['modal-content']}>
-                <button className={classes['close-button']} onClick={onClose}>
+                <button className={classes['close-button']} onClick={onClose} aria-label="Close modal">
                     ✕
                 </button>
                 {children}
             </div>
         </div>,
-        modalRoot.current
+        modalRootRef.current
     );
-}
+};
 
-export default AddressModal
+export default AddressModal;
