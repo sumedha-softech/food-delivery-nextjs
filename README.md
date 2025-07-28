@@ -110,7 +110,7 @@ This app uses **Stripe** for processing payments securely. Payments are handled 
 
 To provide real-time delivery estimates, the app integrates with the OpenRouteService API. It calculates delivery distances and estimated arrival times based on restaurant and customer locations.
 
-## Deployment
+## Deployment 
 
 You can deploy this app to any platform that supports Node.js and MySQL. For more details on deploying a Next.js application, see the official [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying)
 
