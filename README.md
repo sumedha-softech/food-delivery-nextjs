@@ -2,6 +2,8 @@
 
 Welcome to NextLevel Food, a full-stack food delivery application built with the latest web technologies. This project demonstrates a modern architecture using Next.js for the frontend and backend, MySQL for the database, and several other powerful libraries for a rich user experience.
 
+# Live Demo URL: [food-delivery](food-delivery-nextjs-wine.vercel.app)
+
 ## 📺 NextLevel Food App Demo
 
   ![File Uploader Package Project](./doc/nextLevel-food.gif)
